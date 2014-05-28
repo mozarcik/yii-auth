@@ -63,4 +63,10 @@ return array (
 	'operation|operations' => 'operacja|operacje|operacji|operacji',
 	'role|roles' => 'rola|role|roli|roli',
 	'task|tasks' => 'zadanie|zadania|zadań|zadania',
+    'read {model}' => 'Odczytuje {model}',
+    'create {model}' => 'Tworzy {model}',
+    'update {model}' => 'Aktualizuje {model}',
+    'delete {model}' => 'Kasuje {model}',
+    'Collapse all' => 'Zwiń wszystkie',
+    'Expand selected' => 'Rozwiń zaznaczone',
 );

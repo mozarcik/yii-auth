@@ -50,7 +50,7 @@ class AuthModule extends CWebModule
      * @var boolean whether to force copying of assets.
      * Useful during development and when upgrading the module.
      */
-    public $forceCopyAssets = false;
+    public $forceCopyAssets = true;
     /**
      * @var string path to view files for this module.
      * Specify this to use your own views instead of those shipped with the module.
@@ -74,6 +74,7 @@ class AuthModule extends CWebModule
         );
 
         $this->registerCss();
+        $this->registerScript();
 
         $this->flashKeys = array_merge(
             $this->flashKeys,
@@ -101,6 +102,14 @@ class AuthModule extends CWebModule
     public function registerCss()
     {
         Yii::app()->clientScript->registerCssFile($this->getAssetsUrl() . '/css/auth.css');
+    }
+
+    /**
+     * Registers the module JavaScript.
+     */
+    public function registerScript()
+    {
+        Yii::app()->clientScript->registerScriptFile($this->getAssetsUrl() . '/js/auth.js');
     }
 
     /**
