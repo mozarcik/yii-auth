@@ -131,7 +131,7 @@ class AssignmentController extends AuthController
         $authItems = $am->getAuthItems();
         foreach ($authItems as $itemName => $item) {
             if (!in_array($itemName, $assignedItems)) {
-                $options[$this->capitalize($this->getItemTypeText($item->type, true))][$itemName] = $item->description;
+                $options[$this->capitalize($this->getItemTypeText($item->type, true))][$itemName] = trim($item->description) !== '' ? $item->description : $itemName;
             }
         }
 

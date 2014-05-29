@@ -254,8 +254,38 @@ abstract class AuthItemController extends AuthController
     protected function getItemsTree($descendants)
     {
         $options = array();
-        $modules = Yii::app()->getModules();
+        /* @var $am CAuthManager|AuthBehavior */
+        $am = Yii::app()->getAuthManager();
+        $authItems = $am->getAuthItems();
+        $validChildTypes = $this->getValidChildTypes();
+        $rightControl = '<i class="fa fa-lg fa-check text-success toggle-auth"></i>';
+        $formModel = new AddAuthItemForm();
 
+        foreach ($authItems as $childName => $childItem) {
+            if ((!isset($descendants[$childName]) && !in_array($childItem->type, $validChildTypes)) || $childItem->type == CAuthItem::TYPE_OPERATION)
+                continue;
+
+            $typeText = $this->getItemTypeText($childItem->type, true);
+            if (!isset($options[$typeText])) {
+                $options[$typeText] = array(
+                    'label' => $this->capitalize($typeText),
+                    'htmlOptions' => array('id' => $typeText,  'style' => 'display:none;'),
+                    'rightControl' => '',
+                    'items' => array(),
+                );
+            }
+
+            $label = trim($childItem->description) !== '' ? trim($childItem->description) : $childName;
+            $label = CHtml::link($label, array('/auth/' . $this->getItemControllerId($childItem->type) . '/view', 'name' => $childName));
+
+            $options[$typeText]['items'][] = array(
+                'label' => $label,
+                'htmlOptions' => array('id' => "$childName", 'style' => 'display:none;'),
+                'rightControl' => $rightControl.CHtml::activeHiddenField($formModel, 'items[]', array('disabled' => !isset($descendants[$childName]), 'value' => $childName)),
+            );
+        }
+
+        $modules = Yii::app()->getModules();
         foreach ($modules as $module => $config) {
             $moduleInstance = Yii::app()->getModule($module);
             Yii::import("$module.models.*");
@@ -282,7 +312,33 @@ abstract class AuthItemController extends AuthController
                 if (!($obj instanceof NetActiveRecord))
                     continue;
 
-                $rightControl = '<i class="fa fa-lg fa-check text-success toggle-auth"></i>';
+                $operations = array(
+                    'read' => 'read {model}',
+                    'create' => 'create {model}',
+                    'update' => 'update {model}',
+                    'delete' => 'delete {model}',
+                );
+                $modelOperations = array();
+                foreach ($operations as $operationName => $operationLabel) {
+                    $authName = "$module.$model.$operationName";
+                    if (!in_array(CAuthItem::TYPE_OPERATION, $validChildTypes) && !isset($descendants[$authName]))
+                        continue;
+                    
+                    $label = Yii::t('AuthModule.main', $operationLabel, array('{model}' => $model::label(2)));
+                    
+                    if (isset($authItems[$authName]))
+                        $label = CHtml::link($label, array('/auth/' . $this->getItemControllerId($authItems[$authName]->type) . '/view', 'name' => $authName));
+
+                    $hiddenField = CHtml::activeHiddenField($formModel, 'items[]', array('disabled' => !isset($descendants[$authName]), 'value' => $authName));
+                    $modelOperations[] = array(
+                        'label'=> $label,
+                        'rightControl' => $rightControl.$hiddenField,
+                    );
+                }
+
+                if (empty($modelOperations))
+                    continue;
+
                 if (!isset($options[$module])) {
                     $options[$module] = array(
                         'label' => $module,
@@ -292,33 +348,15 @@ abstract class AuthItemController extends AuthController
                     );
                 }
 
-                $formModel = new AddAuthItemForm();
                 $options[$module]['items'][] = array(
                     'label' => $model::label(2),
                     'htmlOptions' => array('id' => "$module-$model", 'style' => 'display:none;'),
                     'rightControl' => $rightControl,
-                    'items' => array(
-                        array(
-                            'label'=> Yii::t('AuthModule.main', "read {model}", array('{model}' => $model::label(2))),
-                            'rightControl' => $rightControl.CHtml::activeHiddenField($formModel, 'items[]', array('disabled' => !isset($descendants["$module.$model.read"]), 'value' => "$module.$model.read")),
-                        ),
-                        array(
-                            'label'=> Yii::t('AuthModule.main', "create {model}", array('{model}' => $model::label(2))),
-                            'rightControl' => $rightControl.CHtml::activeHiddenField($formModel, 'items[]', array('disabled' => !isset($descendants["$module.$model.create"]), 'value' => "$module.$model.create")),
-                        ),
-                        array(
-                            'label'=> Yii::t('AuthModule.main', "update {model}", array('{model}' => $model::label(2))),
-                            'rightControl' => $rightControl.CHtml::activeHiddenField($formModel, 'items[]', array('disabled' => !isset($descendants["$module.$model.update"]), 'value' => "$module.$model.update")),
-                        ),
-                        array(
-                            'label'=> Yii::t('AuthModule.main', "delete {model}", array('{model}' => $model::label(2))),
-                            'rightControl' => $rightControl.CHtml::activeHiddenField($formModel, 'items[]', array('disabled' => !isset($descendants["$module.$model.delete"]), 'value' => "$module.$model.delete")),
-                        ),
-                    ),
+                    'items' => $modelOperations,
                 );
             }
         }
-
+        
         return $options;
     }
 
@@ -389,7 +427,7 @@ abstract class AuthItemController extends AuthController
                 if (in_array($childItem->type, $validChildTypes) && !isset($exclude[$childName])) {
                     $options[$this->capitalize(
                         $this->getItemTypeText($childItem->type, true)
-                    )][$childName] = $childItem->description;
+                    )][$childName] = trim($childItem->description) !== '' ? $childItem->description : $childName;
                 }
             }
         }

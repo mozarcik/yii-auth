@@ -8,7 +8,7 @@
 
     authHelper.initToggleChildItems = function(treeSelector) {
         $(treeSelector).on('click', '.toggle-auth', function(e) {
-            var toggle = $(this).hasClass('fa-check');
+            var toggle = $(this).hasClass('fa-times');
             $('input[type=hidden]', $(this).closest('li'))
                 .prop('disabled', !toggle);
 
@@ -23,6 +23,10 @@
         $('li', $(this).closest('li')).add(li_parents).each(function(){
             var has_disabled = $('input:disabled', this).length > 0;
             var has_enabled = $('input:not(:disabled)', this).length > 0;
+
+            $('span.title', $(this).children('.stv-item'))
+                .toggleClass('text-muted', has_disabled && !has_enabled);
+
             $('.toggle-auth', $(this).children('.stv-item'))
                 .toggleClass('text-danger', has_disabled && !has_enabled)
                 .toggleClass('text-success', !has_disabled && has_enabled)
