@@ -37,7 +37,7 @@ class AuthModule extends CWebModule
      * @var string the application layout.
      * Change this if you wish to use a different layout with the module.
      */
-    public $defaultLayout = 'application.views.layouts.main';
+    public $defaultLayout = '/layouts/main';
     /**
      * @var array map of flash message keys to use for the module.
      */
@@ -56,6 +56,22 @@ class AuthModule extends CWebModule
      * Specify this to use your own views instead of those shipped with the module.
      */
     public $viewDir;
+
+    public $authItemNameTemplate = '{model}.{operationName}';
+
+    /**
+     * List of excluded modules and models from autogenerating auth items.
+     * Format:
+     *      array(
+     *          'module' => array('model1', 'model2', ...),
+     *          'module' => 'model1, model2, ...',
+     *          'module2 => '*',
+     *          'module3' => 'model3',
+     *      )
+     *
+     * @var array
+     */
+    public $excludedFromAutogenerate = array();
 
     private $_assetsUrl;
 
@@ -94,6 +110,27 @@ class AuthModule extends CWebModule
             $this->setLayoutPath($this->viewDir . DIRECTORY_SEPARATOR . 'layouts');
             $this->setViewPath($this->viewDir);
         }
+
+        foreach ($this->excludedFromAutogenerate as $module => $models) {
+            if (is_array($models) || $models === '*') continue;
+
+            $this->excludedFromAutogenerate[$module] = array_map('trim', explode(',', $models));
+        }
+    }
+
+    public function getAuthItemName($model, $operation)
+    {
+        if (is_object($model)) {
+            $model = get_class($model);
+        }
+
+        $module = ModelsModuleMap::getModule($model);
+
+        return strtr($this->authItemNameTemplate, array(
+                '{module}'          => $module,
+                '{model}'           => $model,
+                '{operationName}'   => $operation,
+            ));
     }
 
     /**

@@ -15,7 +15,7 @@
             $(this).toggleChildItems();
         });
         
-        $(treeSelector + ' > li > div .toggle-auth').toggleChildItems();
+        $(treeSelector + ' > li > ul > li > div .toggle-auth').toggleChildItems();
     };
 
     $.fn.toggleChildItems = function() {
@@ -23,6 +23,10 @@
         $('li', $(this).closest('li')).add(li_parents).each(function(){
             var has_disabled = $('input:disabled', this).length > 0;
             var has_enabled = $('input:not(:disabled)', this).length > 0;
+
+            $(this).children('.stv-item')
+                .toggleClass('auth-all-enabled', !has_disabled && has_enabled)
+                .toggleClass('auth-some-enabled', has_disabled && has_enabled);
 
             $('span.title', $(this).children('.stv-item'))
                 .toggleClass('text-muted', has_disabled && !has_enabled);
@@ -37,8 +41,8 @@
         });
     };
 
-    authHelper.expandSelectedBranches = function() {
-        $('ul:has(input:not(:disabled))')
+    authHelper.expandSelectedBranches = function(selector) {
+        $('ul:has(input:not(:disabled))', selector)
                 .show()
                 .each(function(){
                     $('.toggle', $(this).prev())

@@ -33,3 +33,26 @@
 .auth-module .assignment-items-column {
     width: 580px;
 }
+
+.auth-all-enabled {
+    background-color: #DFF0D8 !important;
+    border-color: #468847 !important;
+}
+.auth-all-enabled > .right-control {
+    border-color: #468847 !important;
+}
+
+.auth-all-enabled > i.toggle {
+     border-color: #468847 !important;
+}
+
+.auth-some-enabled {
+    background-color: rgba(214, 231, 246, 1) !important;
+    border-color: #3276B1 !important;
+}
+.auth-some-enabled > .right-control {
+    border-color: #3276B1 !important;
+}
+.auth-some-enabled > i.toggle {
+     border-color: #3276B1 !important;
+}
