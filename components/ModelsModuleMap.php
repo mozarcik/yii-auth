@@ -4,7 +4,7 @@ class ModelsModuleMap extends CApplicationComponent
 {
     private static $_map = null;
 
-    public static function getMap()
+    public static function getMap($exclude = array())
     {
         if (self::$_map !== null)
             return self::$_map;
@@ -12,6 +12,9 @@ class ModelsModuleMap extends CApplicationComponent
         $modules = array_merge(array('application' => array()), Yii::app()->getModules());
         $map = array();
         foreach ($modules as $module => $config) {
+            if (isset($exclude[$module]) && $exclude[$module] == '*') {
+                continue;
+            }
             Yii::import("$module.models.*");
             $filenames = CFileHelper::findFiles(Yii::getPathOfAlias("$module.models"), array (
                 'fileTypes'=> array('php'),
@@ -36,6 +39,10 @@ class ModelsModuleMap extends CApplicationComponent
                 if (!($obj instanceof NetActiveRecord))
                     continue;
 
+                if (isset($exclude[$module]) && in_array($model, $exclude[$module])) {
+                    continue;
+                }
+                
                 $map[$model] = $module;
             }
         }
@@ -45,9 +52,9 @@ class ModelsModuleMap extends CApplicationComponent
         return self::$_map;
     }
 
-    public static function getModule($model)
+    public static function getModule($model, $exclude = array())
     {
-        $map = self::getMap();
+        $map = self::getMap($exclude);
 
         if (!isset($map[$model]))
             throw new CException("Model $model is unknown!");

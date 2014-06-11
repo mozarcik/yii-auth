@@ -124,7 +124,7 @@ class AuthModule extends CWebModule
             $model = get_class($model);
         }
 
-        $module = ModelsModuleMap::getModule($model);
+        $module = ModelsModuleMap::getModule($model, Yii::app()->getModule('auth')->excludedFromAutogenerate);
 
         return strtr($this->authItemNameTemplate, array(
                 '{module}'          => $module,
