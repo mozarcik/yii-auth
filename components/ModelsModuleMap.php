@@ -56,8 +56,10 @@ class ModelsModuleMap extends CApplicationComponent
     {
         $map = self::getMap($exclude);
 
-        if (!isset($map[$model]))
-            throw new CException("Model $model is unknown!");
+        if (!isset($map[$model])) {
+            Yii::log("Cannot find module for class $model!", CLogger::LEVEL_WARNING);
+            return $model;
+        }
 
         return $map[$model];
     }
