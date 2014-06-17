@@ -7,38 +7,62 @@
     };
 
     authHelper.initToggleChildItems = function(treeSelector) {
+        $('input:not(:disabled)','#yw2').each(function(){$(this).toggleChildItems(true);});
+
         $(treeSelector).on('click', '.toggle-auth', function(e) {
-            var toggle = $(this).hasClass('fa-times');
+            var toggle = !$(this).hasClass('fa-check');
             $('input[type=hidden]', $(this).closest('li'))
                 .prop('disabled', !toggle);
-
-            $(this).toggleChildItems();
-        });
         
-        $(treeSelector + ' > li > ul > li > div .toggle-auth').toggleChildItems();
+            $('input[type=hidden]', $(this).closest('.stv-item'))
+                .prop('disabled', !toggle);
+
+            $(this).toggleChildItems(toggle);
+        });
     };
 
-    $.fn.toggleChildItems = function() {
-        var li_parents = $(this).parents('li');
-        $('li', $(this).closest('li')).add(li_parents).each(function(){
-            var has_disabled = $('input:disabled', this).length > 0;
-            var has_enabled = $('input:not(:disabled)', this).length > 0;
+    $.fn.toggleChildItems = function(toggle) {
+        $('.toggle-auth', $(this).closest('li'))
+                .toggleClass('text-primary', false)
+                .toggleClass('fa-minus', false)
+                .toggleClass('text-success', toggle)
+                .toggleClass('text-danger', !toggle)
+                .toggleClass('fa-check', toggle)
+                .toggleClass('fa-times', !toggle);
 
-            $(this).children('.stv-item')
-                .toggleClass('auth-all-enabled', !has_disabled && has_enabled)
-                .toggleClass('auth-some-enabled', has_disabled && has_enabled);
+        $('span.title', $(this).closest('li'))
+                .toggleClass('text-muted', !toggle);
 
-            $('span.title', $(this).children('.stv-item'))
-                .toggleClass('text-muted', has_disabled && !has_enabled);
+        $('.stv-item', $(this).closest('li'))
+                .toggleClass('auth-all-enabled', toggle)
+                .toggleClass('auth-some-enabled', false);
+        
 
-            $('.toggle-auth', $(this).children('.stv-item'))
-                .toggleClass('text-danger', has_disabled && !has_enabled)
-                .toggleClass('text-success', !has_disabled && has_enabled)
-                .toggleClass('text-primary', has_disabled && has_enabled)
-                .toggleClass('fa-times', has_disabled && !has_enabled)
-                .toggleClass('fa-check', !has_disabled && has_enabled)
-                .toggleClass('fa-minus', has_disabled && has_enabled);
-        });
+        var parent = $(this).closest('ul');
+        while (parent.hasClass('stv-list') && parent.prev().hasClass('stv-item')) {
+            console.info(parent, parent.prev());
+            var disabled = $('input[type=hidden]:disabled', parent).length;
+            var all = $('input[type=hidden]', parent).length;
+            parent.prev()
+                    .toggleClass('auth-all-enabled', disabled === 0)
+                    .toggleClass('auth-some-enabled', all !== disabled && disabled !== 0);
+
+            $('.toggle-auth', parent.prev())
+                    .toggleClass('text-success', disabled === 0)
+                    .toggleClass('text-primary', all !== disabled && disabled !== 0)
+                    .toggleClass('text-danger', all === disabled)
+                    .toggleClass('fa-check', disabled === 0)
+                    .toggleClass('fa-minus', all !== disabled && disabled !== 0)
+                    .toggleClass('fa-times', all === disabled);
+
+            $('span.title', parent.prev())
+                    .toggleClass('text-muted', all === disabled);
+
+            $('input[type=hidden]', parent.prev())
+                    .prop('disabled', disabled !== 0);
+
+            parent = parent.parent().closest('ul');
+        }
     };
 
     authHelper.expandSelectedBranches = function(selector) {

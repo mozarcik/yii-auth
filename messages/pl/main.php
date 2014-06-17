@@ -69,4 +69,12 @@ return array (
     'delete {model}' => 'Kasuje {model}',
     'Collapse all' => 'Zwiń wszystkie',
     'Expand selected' => 'Rozwiń zaznaczone',
+    'read own {model}' => 'Odczytuje własne {model}',
+    'create own {model}' => 'Tworzy własne {model}',
+    'update own {model}' => 'Aktualizuje własne {model}',
+    'delete own {model}' => 'Kasuje własne {model}',
+    'read related {model}' => 'Odczytuje powiązane {model}',
+    'create related {model}' => 'Tworzy powiązane {model}',
+    'update related {model}' => 'Aktualizuje powiązane {model}',
+    'delete related {model}' => 'Kasuje powiązane {model}',
 );
