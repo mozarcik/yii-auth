@@ -27,6 +27,57 @@ class AssignmentController extends AuthController
         );
     }
 
+    private function assign($id, $items, $parent = null)
+    {
+        $assigned = array();
+        /* @var $am CAuthManager|AuthBehavior */
+        $am = Yii::app()->getAuthManager();
+        $autogenItems = $this->getAutogenItems();
+
+        foreach ($items as $citem => $children) {
+            $authName = ($parent !== null ? $parent.'.' : '') . $citem;
+            $childItem = $am->getAuthItem($authName);
+
+            $authLabel =  is_string($children) ? $children : $authName;
+            $assign = true;
+            if (isset($autogenItems[$authName])) {
+                $authLabel = $autogenItems[$authName]['label'];
+                if (is_array($children) && $autogenItems[$authName]['count'] > count($children) )
+                    $assign = false;
+            }
+
+            if ($childItem === null) {
+                $am->createAuthItem($authName, CAuthItem::TYPE_OPERATION, $authLabel);
+                if ($parent !== null && !$am->hasItemChild($parent, $authName)) {
+                    $am->addItemChild($parent, $authName);
+                }
+            }
+
+            if ($am->isAssigned($authName, $id)) {
+                $assigned[] = $authName;
+            }
+            
+            if ($assign && !$am->isAssigned($authName, $id)) {
+                $am->assign($authName, $id);
+                if ($am instanceof CPhpAuthManager) {
+                    $am->save();
+                }
+                if ($am instanceof ICachedAuthManager) {
+                    $am->flushAccess($citem, $id);
+                }
+                $assigned[] = $authName;
+            }
+
+            if (is_array($children) && !$assign) {
+                $assigned = array_merge($assigned, $this->assign($id, $children, $authName));
+            }
+        }
+
+        return $assigned;
+    }
+
+
+
     /**
      * Displays the assignments for the user with the given id.
      * @param string $id the user id.
@@ -41,27 +92,11 @@ class AssignmentController extends AuthController
         if (isset($_POST['AddAuthItemForm'])) {
             $formModel->attributes = $_POST['AddAuthItemForm'];
             if ($formModel->validate()) {
-                foreach ($formModel->items as $citem => $label) {
-                    $childItem = $am->getAuthItem($citem);
-                    if ($childItem === null) {
-                        $am->createAuthItem($citem, CAuthItem::TYPE_OPERATION, $label);
-                    }
-                   
-                    if (!$am->isAssigned($citem, $id)) {
-                        $am->assign($citem, $id);
-                        if ($am instanceof CPhpAuthManager) {
-                            $am->save();
-                        }
+                $assigned = $this->assign($id, $formModel->items);
 
-                        if ($am instanceof ICachedAuthManager) {
-                            $am->flushAccess($citem, $id);
-                        }
-                    }
-                }
                 $assignments = $am->getAuthAssignments($id);
-                //todo remove child items which are not POSTed
-                $removeChildren = array_diff(array_keys($assignments), array_keys($formModel->items));
-                foreach ($removeChildren as $childName) {
+                $revokeAccessItems = array_diff(array_keys($assignments), $assigned);
+                foreach ($revokeAccessItems as $childName) {
                     $am->revoke($childName, $id);
                     if ($am instanceof CPhpAuthManager) {
                         $am->save();
@@ -165,11 +200,9 @@ class AssignmentController extends AuthController
         $options = array();
         /* @var $am CAuthManager|AuthBehavior */
         $am = Yii::app()->getAuthManager();
-
         $assignments = $am->getAuthAssignments($userId);
-        
         $authItems = $am->getAuthItems();
-        $rightControl = '<i class="fa fa-lg fa-check text-success toggle-auth"></i>';
+        $rightControl = '<i class="fa fa-lg fa-times text-danger toggle-auth"></i>';
         $formModel = new AddAuthItemForm();
         $excludeItems = $this->module->excludedFromAutogenerate;
 
@@ -214,25 +247,42 @@ class AssignmentController extends AuthController
                     'update' => 'update {model}',
                     'delete' => 'delete {model}',
                 );
+
                 $modelOperations = array();
                 foreach ($operations as $operationName => $operationLabel) {
-                    $authName = strtr($this->module->authItemNameTemplate, array(
-                        '{module}' => $module,
-                        '{model}' => $model,
-                        '{operationName}' => $operationName,
-                    ));
-                    
-                    $label = Yii::t('AuthModule.main', $operationLabel, array('{model}' => $class->hasMethod('label') ? $model::label(2) : $model));
+                    $authName = "$model.$operationName";
+
+                    $modelLabel = $class->hasMethod('label') ? $model::label(2) : $model;
+                    $authLabel = Yii::t('AuthModule.main', $operationLabel, array('{model}' => $modelLabel));
+                    $label = $authLabel;
 
                     if (isset($authItems[$authName])) {
-                        $label = CHtml::link($label, array('/auth/' . $this->getItemControllerId($authItems[$authName]->type) . '/view', 'name' => $authName));
+                        $label = CHtml::link($authLabel, array('/auth/' . $this->getItemControllerId($authItems[$authName]->type) . '/view', 'name' => $authName));
                         unset($authItems[$authName]);
                     }
 
-                    $hiddenField = CHtml::activeHiddenField($formModel, "items[$authName]", array('disabled' => !isset($assignments[$authName]), 'value' => $label));
+                    $subItems = array();
+                    foreach (array('own', 'related') as $subItem) {
+                        $l = Yii::t('AuthModule.main', "$operationName $subItem {model}", array('{model}' => $modelLabel));
+                        if (isset($authItems["$authName.$subItem"])) {
+                            $l = CHtml::link($l, array('/auth/' . $this->getItemControllerId($authItems["$authName.$subItem"]->type) . '/view', 'name' => $authName));
+                            unset($authItems["$authName.$subItem"]);
+                        }
+                        $subItems[] = array(
+                            'label' => $l,
+                            'rightControl' => $rightControl . CHtml::activeHiddenField($formModel, "items[$model][$operationName][$subItem]", array(
+                                'disabled' => !isset($assignments["$authName.$subItem"]),
+                                'value' => Yii::t('AuthModule.main', "$operationName $subItem {model}", array('{model}' => $modelLabel))
+                            )),
+                        );
+                    }
+
+                    $hiddenField = CHtml::activeHiddenField($formModel, "items[$model][$operationName]", array('disabled' => !isset($assignments[$authName]), 'value' => $authLabel));
                     $modelOperations[] = array(
                         'label'=> $label,
                         'rightControl' => $rightControl.$hiddenField,
+                        'htmlOptions' => array('id' => "$module-$model-$operationName", 'style' => 'display:none;'),
+                        'items' => $subItems,
                     );
                 }
 
@@ -248,10 +298,17 @@ class AssignmentController extends AuthController
                     );
                 }
 
+
+                $label = $model::label(2);
+
+                if (isset($authItems[$model])) {
+                    $label = CHtml::link($label, array('/auth/' . $this->getItemControllerId($authItems[$model]->type) . '/view', 'name' => $model));
+                    unset($authItems[$model]);
+                }
                 $operationsOptions[$module]['items'][] = array(
-                    'label' => $model::label(2),
+                    'label' => $label,
                     'htmlOptions' => array('id' => "$module-$model", 'style' => 'display:none;'),
-                    'rightControl' => $rightControl,
+                    'rightControl' => $rightControl.CHtml::activeHiddenField($formModel, "items[$model]", array('disabled' => !isset($assignments[$model]), 'value' => $model::label(2))),
                     'items' => $modelOperations,
                 );
             }
@@ -285,12 +342,12 @@ class AssignmentController extends AuthController
 
             $opLabel = trim($childItem->description) !== '' ? trim($childItem->description) : $childName;
             $label = CHtml::link($opLabel, array('/auth/' . $this->getItemControllerId($childItem->type) . '/view', 'name' => $childName));
-			$rc = '<i class="fa fa-lg toggle-auth ' . (!isset($assignments[$childName]) ? 'fa-times text-danger' : 'fa-check text-success') . '"></i>';
+			$rc = '<i class="fa fa-lg toggle-auth fa-times text-danger"></i>';
 
             $options[$typeText]['items'][] = array(
                 'label' => $label,
                 'htmlOptions' => array('id' => "$childName", 'style' => 'display:none;'),
-                'rightControl' => $rc.CHtml::activeHiddenField($formModel, "items[$childName]", array('disabled' => !isset($assignments[$childName]), 'value' => $opLabel)),
+                'rightControl' => $rc.CHtml::activeHiddenField($formModel, "items[$childName]", array('disabled' => !isset($assignments[$childName]), 'value' => $opLabel,)),
             );
         }
 

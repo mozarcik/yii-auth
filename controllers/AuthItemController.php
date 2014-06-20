@@ -16,7 +16,6 @@ abstract class AuthItemController extends AuthController
      * @var integer the item type (0=operation, 1=task, 2=role).
      */
     public $type;
-    private $_autogenItems = null;
 
     /**
      * Displays a list of items of the given type.
@@ -307,78 +306,7 @@ abstract class AuthItemController extends AuthController
         return $options;
     }
 
-
-    private function getAutogenItems()
-    {
-        if ($this->_autogenItems !== null)
-            return $this->_autogenItems;
-        
-        $items = array();
-
-        $validChildTypes = $this->getValidChildTypes();
-        $excludeItems = $this->module->excludedFromAutogenerate;
-
-        $modules = array_merge(array('application' => array()), Yii::app()->getModules());
-        foreach ($modules as $module => $config) {
-            if (isset($excludeItems[$module]) && $excludeItems[$module] == '*') {
-                continue;
-            }
-            $moduleInstance = Yii::app()->getModule($module);
-            Yii::import("$module.models.*");
-            $filenames = CFileHelper::findFiles(Yii::getPathOfAlias("$module.models"), array (
-                'fileTypes'=> array('php'),
-                'level' => 0,
-            ));
-            foreach ($filenames as $filename) {
-                //remove off the path
-                $file = substr( $filename, strrpos($filename, '/') + 1 );
-                // remove the extension, strlen('.php') = 4
-                $model = substr( $file, 0, strlen($file) - 4);
-
-                $class = new ReflectionClass($model);
-                if ($class->isAbstract())
-                    continue;
-
-                try {
-                    $obj = CActiveRecord::model($model);
-                } catch (Exception $e) {
-                    continue;
-                }
-
-                if (!($obj instanceof NetActiveRecord))
-                    continue;
-
-                if (isset($excludeItems[$module]) && in_array($model, $excludeItems[$module])) {
-                    continue;
-                }
-
-                $operations = array(
-                    'read' => 'read {model}',
-                    'create' => 'create {model}',
-                    'update' => 'update {model}',
-                    'delete' => 'delete {model}',
-                );
-
-                $modelLabel = $class->hasMethod('label') ? $model::label(2) : $model;
-                $items[$model] = array('label' => $modelLabel, 'count' => 4);
-                foreach ($operations as $operationName => $operationLabel) {
-                    if (!in_array(CAuthItem::TYPE_OPERATION, $validChildTypes))
-                        continue;
-
-                    $authLabel = Yii::t('AuthModule.main', $operationLabel, array('{model}' => $modelLabel));
-                    $items["$model.$operationName"] = array('label' => $authLabel, 'count' => 2);
-                    
-                    foreach (array('own', 'related') as $subItem) {
-                        $l = Yii::t('AuthModule.main', "$operationName $subItem {model}", array('{model}' => $modelLabel));
-                        $items["$model.$operationName.$subItem"] = array('label' => $l, 'count' => 0);
-                    }
-                }
-            }
-        }
-
-        $this->_autogenItems = $items;
-        return $items;
-    }
+   
 
     protected function getDescendantsTree($descendants)
     {

@@ -7,7 +7,7 @@
     };
 
     authHelper.initToggleChildItems = function(treeSelector) {
-        $('input:not(:disabled)','#yw2').each(function(){$(this).toggleChildItems(true);});
+        $('input:not(:disabled)', treeSelector).each(function(){$(this).toggleChildItems(true);});
 
         $(treeSelector).on('click', '.toggle-auth', function(e) {
             var toggle = !$(this).hasClass('fa-check');
