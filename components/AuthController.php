@@ -22,14 +22,13 @@ abstract class AuthController extends CController
      */
     public $breadcrumbs = array();
     private $_autogenItems = null;
-
+    
     /**
      * Initializes the controller.
      */
     public function init()
     {
         parent::init();
-        $this->layout = $this->module->defaultLayout;
         $this->menu = $this->getSubMenu();
     }
 

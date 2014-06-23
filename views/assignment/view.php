@@ -11,24 +11,31 @@ $this->breadcrumbs = array(
     CHtml::value($model, $this->module->userNameColumn),
 );
 ?>
-
+<?php
+$this->widget(
+    'zii.widgets.CMenu',
+    array(
+        'htmlOptions' => array('class' => 'nav nav-tabs'),
+        'items' => $this->menu,
+    )
+);?>
 <h1><?php echo CHtml::encode(CHtml::value($model, $this->module->userNameColumn)); ?>
     <small><?php echo Yii::t('AuthModule.main', 'Assignments'); ?></small>
 </h1>
 
 <div class="row">
 
-    <div class="span6">
+    <div class="col-sm-6">
         <fieldset>
-            <legend>
+            <h2>
                 <?php echo Yii::t('AuthModule.main', 'Permissions'); ?>
                 <small><?php echo Yii::t('AuthModule.main', 'Items assigned to this user'); ?></small>
-            </legend>
+            </h2>
 
             <?php if (empty($assignmentTree)) : ?>
                 <?php echo Yii::t('AuthModule.main', 'This user does not have any assignments.');?>
             <?php else: ?>
-                <?php $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(/*'type'=>'inline'*/)); ?>
+                <?php $form = $this->beginWidget('CActiveForm', array()); ?>
                 <button type="submit" class="btn btn-primary"><?php echo Yii::t('AuthModule.main', 'Save');?></button>
                 <a href="#" id="collapse-all" class="btn btn-default"><?php echo Yii::t('AuthModule.main', 'Collapse all');?></a>
                 <a href="#" id="expand-selected" class="btn btn-default"><?php echo Yii::t('AuthModule.main', 'Expand selected');?></a>

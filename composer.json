@@ -1,5 +1,5 @@
 {
-    "name": "crisu83/yii-auth",
+    "name": "mozarcik/yii-auth",
     "description": "Web UI for the authorization manager of Yii PHP framework.",
     "keywords": ["yii", "authentication", "rbac"],
     "type": "library",
@@ -9,12 +9,15 @@
             "name": "Christoffer Niska",
             "email": "christoffer.niska@gmail.com",
             "homepage": "http://www.cniska.net/"
+        },
+        {
+            "name": "Michał Motyczko",
+            "email": "michal@motyczko.pl",
+            "homepage": "http://www.motyczko.pl/"
         }
     ],
-    "require": {
-        "crisu83/yiistrap": ">=1.0.0"
-    },
     "require-dev": {
+        "mozarcik/stv": "dev-master",
         "yiisoft/yii": ">=1.1.0"
     }
 }

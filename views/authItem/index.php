@@ -7,20 +7,27 @@ $this->breadcrumbs = array(
 );
 ?>
 
+<?php
+$this->widget(
+    'zii.widgets.CMenu',
+    array(
+        'htmlOptions' => array('class' => 'nav nav-tabs'),
+        'items' => $this->menu,
+    )
+);?>
+
 <h1><?php echo $this->capitalize($this->getTypeText(true)); ?></h1>
 
-<?php echo TbHtml::linkButton(
+<?php echo CHtml::link(
     Yii::t('AuthModule.main', 'Add {type}', array('{type}' => $this->getTypeText())),
-    array(
-        'color' => TbHtml::BUTTON_COLOR_PRIMARY,
-        'url' => array('create'),
-    )
+    array('create'),
+    array('class' => 'btn btn-primary',)
 ); ?>
 
 <?php $this->widget(
-    'bootstrap.widgets.TbGridView',
+    'zii.widgets.grid.CGridView',
     array(
-        'type' => 'striped hover',
+        'itemsCssClass' => 'table table-striped table-hover',
         'dataProvider' => $dataProvider,
         'emptyText' => Yii::t('AuthModule.main', 'No {type} found.', array('{type}' => $this->getTypeText(true))),
         'template' => "{items}\n{pager}",
@@ -38,7 +45,7 @@ $this->breadcrumbs = array(
                 'htmlOptions' => array('class' => 'item-description-column'),
             ),
             array(
-                'class' => 'bootstrap.widgets.TbButtonColumn',
+                'class' => 'zii.widgets.grid.CButtonColumn',
                 'viewButtonLabel' => Yii::t('AuthModule.main', 'View'),
                 'viewButtonUrl' => "Yii::app()->controller->createUrl('view', array('name'=>\$data->name))",
                 'updateButtonLabel' => Yii::t('AuthModule.main', 'Edit'),

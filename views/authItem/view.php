@@ -15,9 +15,17 @@ $this->breadcrumbs = array(
 
 Yii::app()->getClientScript()->registerCss('toggle-css', '.toggle-auth {min-width: 1em;text-align: center;}');
 ?>
+    <?php
+$this->widget(
+    'zii.widgets.CMenu',
+    array(
+        'htmlOptions' => array('class' => 'nav nav-tabs'),
+        'items' => $this->menu,
+    )
+);?>
 <fieldset>
     
-    <legend>
+    <h3>
         <?php echo CHtml::encode($item->description); ?> <small><?php echo $this->getTypeText(); ?></small>
         <div class="pull-right">
             <?php echo CHtml::link(Yii::t('AuthModule.main', 'Edit'), array('update', 'name'=>$item->name), array('class' => 'btn btn-default'));?>
@@ -25,11 +33,12 @@ Yii::app()->getClientScript()->registerCss('toggle-css', '.toggle-auth {min-widt
                         'confirm'=>Yii::t('AuthModule.main', 'Are you sure you want to delete this item?'),
                 ));?>
         </div>
-    </legend>
+    </h3>
     <div class="row">
         <div class="col-sm-12 col-md-10 col-lg-8">
-        <?php $this->widget('bootstrap.widgets.TbDetailView', array(
+        <?php $this->widget('zii.widgets.CDetailView', array(
             'data' => $item,
+            'htmlOptions' => array('class' => 'table table-striped'),
             'attributes' => array(
                 array(
                     'name' => 'name',
@@ -49,17 +58,17 @@ Yii::app()->getClientScript()->registerCss('toggle-css', '.toggle-auth {min-widt
 
 <div class="row">
     
-	<div class="span6">
+	<div class="col-sm-6">
         <fieldset>
-            <legend>
+            <h3>
                 <?php echo Yii::t('AuthModule.main', 'Descendants'); ?>
                 <small><?php echo Yii::t('AuthModule.main', 'Permissions granted by this item'); ?></small>
-            </legend>
+            </h3>
 
             <?php if (empty($descendantsTree)) : ?>
                 <?php echo Yii::t('AuthModule.main', 'This item does not have any descendants.');?>
             <?php else: ?>
-                <?php $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array('htmlOptions' => array('autocomplete' => 'off'))); ?>
+                <?php $form = $this->beginWidget('CActiveForm', array('htmlOptions' => array('autocomplete' => 'off'))); ?>
                 <button type="submit" class="btn btn-primary"><?php echo Yii::t('AuthModule.main', 'Save');?></button>
                 <a href="#" id="collapse-all" class="btn btn-default"><?php echo Yii::t('AuthModule.main', 'Collapse all');?></a>
                 <a href="#" id="expand-selected" class="btn btn-default"><?php echo Yii::t('AuthModule.main', 'Expand selected');?></a>
@@ -75,12 +84,12 @@ Yii::app()->getClientScript()->registerCss('toggle-css', '.toggle-auth {min-widt
         </fieldset>
 	</div>
 
-    <div class="span6">
+    <div class="col-sm-6">
         <fieldset>
-            <legend>
+            <h3>
                 <?php echo Yii::t('AuthModule.main', 'Ancestors'); ?>
                 <small><?php echo Yii::t('AuthModule.main', 'Permissions that inherit this item'); ?></small>
-            </legend>
+            </h3>
 
             <?php if (empty($ancestorsTree)) : ?>
                 <?php echo Yii::t('AuthModule.main', 'This item does not have any ancestors.');?>
