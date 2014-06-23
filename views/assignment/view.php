@@ -19,61 +19,25 @@ $this->breadcrumbs = array(
 <div class="row">
 
     <div class="span6">
+        <fieldset>
+            <legend>
+                <?php echo Yii::t('AuthModule.main', 'Permissions'); ?>
+                <small><?php echo Yii::t('AuthModule.main', 'Items assigned to this user'); ?></small>
+            </legend>
 
-        <h3>
-            <?php echo Yii::t('AuthModule.main', 'Permissions'); ?>
-            <small><?php echo Yii::t('AuthModule.main', 'Items assigned to this user'); ?></small>
-        </h3>
-
-        <?php $this->widget(
-            'bootstrap.widgets.TbGridView',
-            array(
-                'type' => 'striped condensed hover',
-                'dataProvider' => $authItemDp,
-                'emptyText' => Yii::t('AuthModule.main', 'This user does not have any assignments.'),
-                'hideHeader' => true,
-                'template' => "{items}",
-                'columns' => array(
-                    array(
-                        'class' => 'AuthItemDescriptionColumn',
-                        'active' => true,
-                    ),
-                    array(
-                        'class' => 'AuthItemTypeColumn',
-                        'active' => true,
-                    ),
-                    array(
-                        'class' => 'AuthAssignmentRevokeColumn',
-                        'userId' => $model->{$this->module->userIdColumn},
-                    ),
-                ),
-            )
-        ); ?>
-
-        <?php if (!empty($assignmentOptions)): ?>
-
-            <h4><?php echo Yii::t('AuthModule.main', 'Assign permission'); ?></h4>
-
-            <?php $form = $this->beginWidget(
-                'bootstrap.widgets.TbActiveForm',
-                array(
-                    'layout' => TbHtml::FORM_LAYOUT_INLINE,
-                )
-            ); ?>
-
-            <?php echo $form->dropDownList($formModel, 'items', $assignmentOptions, array('label' => false)); ?>
-
-            <?php echo TbHtml::submitButton(
-                Yii::t('AuthModule.main', 'Assign'),
-                array(
-                    'color' => TbHtml::BUTTON_COLOR_PRIMARY,
-                )
-            ); ?>
-
-            <?php $this->endWidget(); ?>
-
-        <?php endif; ?>
-
-    </div>
-
+            <?php if (empty($assignmentTree)) : ?>
+                <?php echo Yii::t('AuthModule.main', 'This user does not have any assignments.');?>
+            <?php else: ?>
+                <?php $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(/*'type'=>'inline'*/)); ?>
+                <button type="submit" class="btn btn-primary"><?php echo Yii::t('AuthModule.main', 'Save');?></button>
+                <a href="#" id="collapse-all" class="btn btn-default"><?php echo Yii::t('AuthModule.main', 'Collapse all');?></a>
+                <a href="#" id="expand-selected" class="btn btn-default"><?php echo Yii::t('AuthModule.main', 'Expand selected');?></a>
+                <?php $widget = $this->widget('SimpleTreeView', array('items' => $assignmentTree));?>
+                <?php Yii::app()->getClientScript()->registerScript('initAuthHelper'.__FILE__, "authHelper.initToggleChildItems('#{$widget->id}');", CClientScript::POS_READY);?>
+                <?php Yii::app()->getClientScript()->registerScript('collapseAll'.__FILE__, "$('#collapse-all').click(function(e){ $('#{$widget->id}').simpleTreeView('collapseAll'); return false;});", CClientScript::POS_READY);?>
+                <?php Yii::app()->getClientScript()->registerScript('expandSelected'.__FILE__, "$('#expand-selected').click(function(e){ authHelper.expandSelectedBranches('#{$widget->id}'); return false;});", CClientScript::POS_READY);?>
+                <?php $this->endWidget(); ?>
+            <?php endif; ?>
+        </fieldset>
+	</div>
 </div>

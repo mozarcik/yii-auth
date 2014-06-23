@@ -146,13 +146,7 @@ abstract class AuthController extends CController
         $items = array();
 
         $validChildTypes = $this->getValidChildTypes();
-        $excludeItems = $this->module->excludedFromAutogenerate;
-
-        $modules = array_merge(array('application' => array()), Yii::app()->getModules());
-        foreach ($modules as $module => $config) {
-            if (isset($excludeItems[$module]) && $excludeItems[$module] == '*') {
-                continue;
-            }
+        foreach ($this->module->modules as $module => $config) {
             $moduleInstance = Yii::app()->getModule($module);
             Yii::import("$module.models.*");
             $filenames = CFileHelper::findFiles(Yii::getPathOfAlias("$module.models"), array (
@@ -178,7 +172,7 @@ abstract class AuthController extends CController
                 if (!($obj instanceof NetActiveRecord))
                     continue;
 
-                if (isset($excludeItems[$module]) && in_array($model, $excludeItems[$module])) {
+                if (in_array($model, $config['exclude'])) {
                     continue;
                 }
 

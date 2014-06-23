@@ -317,14 +317,9 @@ abstract class AuthItemController extends AuthController
         $validChildTypes = $this->getValidChildTypes();
         $rightControl = '<i class="fa fa-lg fa-times text-danger toggle-auth"></i>';
         $formModel = new AddAuthItemForm();
-        $excludeItems = $this->module->excludedFromAutogenerate;
-
-        $modules = array_merge(array('application' => array()), Yii::app()->getModules());
+        
         $operationsOptions = array();
-        foreach ($modules as $module => $config) {
-            if (isset($excludeItems[$module]) && $excludeItems[$module] == '*') {
-                continue;
-            }
+        foreach ($this->module->modules as $module => $config) {
             $moduleInstance = Yii::app()->getModule($module);
             Yii::import("$module.models.*");
             $filenames = CFileHelper::findFiles(Yii::getPathOfAlias("$module.models"), array (
@@ -350,7 +345,7 @@ abstract class AuthItemController extends AuthController
                 if (!($obj instanceof NetActiveRecord))
                     continue;
 
-                if (isset($excludeItems[$module]) && in_array($model, $excludeItems[$module])) {
+                if (in_array($model, $config['exclude'])) {
                     continue;
                 }
 
@@ -406,7 +401,7 @@ abstract class AuthItemController extends AuthController
 
                 if (!isset($operationsOptions[$module])) {
                     $operationsOptions[$module] = array(
-                        'label' => $module,
+                        'label' => $config['label'],
                         'htmlOptions' => array('id' => $module,  'style' => 'display:none;'),
                         'rightControl' => $rightControl,
                         'items' => array(),

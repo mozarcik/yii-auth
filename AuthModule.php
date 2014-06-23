@@ -57,21 +57,19 @@ class AuthModule extends CWebModule
      */
     public $viewDir;
 
-    public $authItemNameTemplate = '{model}.{operationName}';
-
     /**
-     * List of excluded modules and models from autogenerating auth items.
+     * List of modules used for autogenerating auth items. 
      * Format:
      *      array(
-     *          'module' => array('model1', 'model2', ...),
-     *          'module' => 'model1, model2, ...',
-     *          'module2 => '*',
-     *          'module3' => 'model3',
+     *          'module' => 'Module Label',
+     *          'module2' => array('exclude' => 'model1, model2'),
+     *          'module3' => array('exclude' => array('model1', 'model2')),
+     *          'module4' => array('label' => 'Module 4 Label', 'exclude' => 'model2'),
      *      )
      *
      * @var array
      */
-    public $excludedFromAutogenerate = array();
+    public $modules = array();
 
     private $_assetsUrl;
 
@@ -111,26 +109,29 @@ class AuthModule extends CWebModule
             $this->setViewPath($this->viewDir);
         }
 
-        foreach ($this->excludedFromAutogenerate as $module => $models) {
-            if (is_array($models) || $models === '*') continue;
+        foreach ($this->modules as $module => &$config) {
+            if (is_string($config)) {
+                $this->modules[$module] = array('label' => $config, 'exclude' => array());
+                continue;
+            }
 
-            $this->excludedFromAutogenerate[$module] = array_map('trim', explode(',', $models));
+            if (!isset($config['label'])) {
+                $config['label'] = $module;
+            }
+
+            if (!isset($config['exclude'])) {
+                $config['exclude'] = array();
+            }
+
+            if (!is_array($config['exclude'])) {
+                $config['exclude'] = array_map('trim', explode(',', $config['exclude']));
+            }
         }
     }
 
     public function getAuthItemName($model, $operation)
     {
-        if (is_object($model)) {
-            $model = get_class($model);
-        }
-
-        $module = ModelsModuleMap::getModule($model, Yii::app()->getModule('auth')->excludedFromAutogenerate);
-
-        return strtr($this->authItemNameTemplate, array(
-                '{module}'          => $module,
-                '{model}'           => $model,
-                '{operationName}'   => $operation,
-            ));
+        return '';
     }
 
     /**
