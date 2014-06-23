@@ -17,7 +17,7 @@
         }
     ],
     "require": {
-        "mozarcik/stv": "dev-master"
+        "mozarcik/stv": ">=1.0.0"
     },
     "require-dev": {
         "yiisoft/yii": ">=1.1.0"
