@@ -16,8 +16,10 @@
             "homepage": "http://www.motyczko.pl/"
         }
     ],
+    "require": {
+        "mozarcik/stv": "dev-master"
+    },
     "require-dev": {
-        "mozarcik/stv": "dev-master",
         "yiisoft/yii": ">=1.1.0"
     }
 }
