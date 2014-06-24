@@ -35,14 +35,30 @@ $this->widget(
             <?php if (empty($assignmentTree)) : ?>
                 <?php echo Yii::t('AuthModule.main', 'This user does not have any assignments.');?>
             <?php else: ?>
-                <?php $form = $this->beginWidget('CActiveForm', array()); ?>
-                <button type="submit" class="btn btn-primary"><?php echo Yii::t('AuthModule.main', 'Save');?></button>
-                <a href="#" id="collapse-all" class="btn btn-default"><?php echo Yii::t('AuthModule.main', 'Collapse all');?></a>
-                <a href="#" id="expand-selected" class="btn btn-default"><?php echo Yii::t('AuthModule.main', 'Expand selected');?></a>
-                <?php $widget = $this->widget('SimpleTreeView', array('items' => $assignmentTree));?>
+                <?php ob_start();?>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><?php echo Yii::t('AuthModule.main', 'Save');?></button>
+                        {collapse}
+                        {expand}
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+                        {searchInput}
+                    </div>
+                <?php $toolbarTemplate = ob_get_clean();?>
+                <?php $widget = $this->widget('SimpleTreeView', array(
+                    'id' => 'stv-assignments',
+                    'items' => $assignmentTree,
+                    'toolbarTemplate' => $toolbarTemplate,
+                    'toolbarButtons' => array(
+                        'collapse' => array('label' => Yii::t('AuthModule.main', 'Collapse all')),
+                        'expand' => array(
+                            'label' => Yii::t('AuthModule.main', 'Expand selected'),
+                            'click' => "function(e){ authHelper.expandSelectedBranches('#stv-assignments'); return false;}"
+                        ),
+                    )
+                ));?>
                 <?php Yii::app()->getClientScript()->registerScript('initAuthHelper'.__FILE__, "authHelper.initToggleChildItems('#{$widget->id}');", CClientScript::POS_READY);?>
-                <?php Yii::app()->getClientScript()->registerScript('collapseAll'.__FILE__, "$('#collapse-all').click(function(e){ $('#{$widget->id}').simpleTreeView('collapseAll'); return false;});", CClientScript::POS_READY);?>
-                <?php Yii::app()->getClientScript()->registerScript('expandSelected'.__FILE__, "$('#expand-selected').click(function(e){ authHelper.expandSelectedBranches('#{$widget->id}'); return false;});", CClientScript::POS_READY);?>
                 <?php $this->endWidget(); ?>
             <?php endif; ?>
         </fieldset>
