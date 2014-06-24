@@ -69,9 +69,15 @@ $this->widget(
                 <?php echo Yii::t('AuthModule.main', 'This item does not have any descendants.');?>
             <?php else: ?>
                 <?php $form = $this->beginWidget('CActiveForm', array('htmlOptions' => array('autocomplete' => 'off'))); ?>
-                <button type="submit" class="btn btn-primary"><?php echo Yii::t('AuthModule.main', 'Save');?></button>
-                <a href="#" id="collapse-all" class="btn btn-default"><?php echo Yii::t('AuthModule.main', 'Collapse all');?></a>
-                <a href="#" id="expand-selected" class="btn btn-default"><?php echo Yii::t('AuthModule.main', 'Expand selected');?></a>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary"><?php echo Yii::t('AuthModule.main', 'Save');?></button>
+                    <a href="#" id="collapse-all" class="btn btn-default"><?php echo Yii::t('AuthModule.main', 'Collapse all');?></a>
+                    <a href="#" id="expand-selected" class="btn btn-default"><?php echo Yii::t('AuthModule.main', 'Expand selected');?></a>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+                    <input class="form-control" type="text" placeholder="<?php echo Yii::t('app', 'Search'); ?>" name="search" id="search-tree">
+                </div>
                 <?php $widget = $this->widget('SimpleTreeView', array(
                     'items' => $descendantsTree,
                     'itemTemplate' => '{icon}<span class="title text-muted">{label}</span><span class="right-control">{rightControl}</span>',

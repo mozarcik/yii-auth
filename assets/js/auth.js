@@ -1,6 +1,13 @@
 (function( authHelper, $, undefined ) {
 	"use strict";
     var _settings = {};
+    var _searchTimeout;
+
+    //case insensitive :contains selector
+    jQuery.expr[':'].containsCI = function(a, i, m) {
+      return jQuery(a).text().toLowerCase()
+          .indexOf(m[3].toLowerCase()) >= 0;
+    };
 
 	authHelper.init = function(settings) {
         _settings = $.extend(_settings, settings);
@@ -19,6 +26,37 @@
 
             $(this).toggleChildItems(toggle);
         });
+    };
+
+    authHelper.initSearchTree = function(searchInputSelector, treeSelector) {
+        var prevSearchText = '';
+        $(searchInputSelector).on('keyup', function(e) {
+            var searchText = $.trim($(this).val());
+            console.info('keyup', searchText);
+            if (prevSearchText !== searchText) {
+                console.info('keyup2', searchText);
+                prevSearchText = searchText;
+                clearTimeout(_searchTimeout);
+                _searchTimeout = setTimeout(function(){authHelper.searchTree(treeSelector, searchText);}, 200);
+            }
+        });
+    };
+
+    authHelper.searchTree = function(treeSelector, searchText) {
+        console.info('searchTree', searchText);
+        $(treeSelector).simpleTreeView('collapseAll');
+        if (searchText === '') {
+            $('li','#yw3').show();
+        } else {
+            $('li','#yw3').hide();
+            $('ul','#yw3').hide();
+            $(':containsCI(\''+searchText+'\')', '#yw3').parents('li').show().each(function(){
+                $('.toggle', $(this).children('.stv-item'))
+                    .toggleClass('fa-expand-o', false)
+                    .toggleClass('fa-collapse-o', true);
+            });
+            $(':containsCI(\''+searchText+'\')', '#yw3').parents('ul').show();
+        }
     };
 
     $.fn.toggleChildItems = function(toggle) {
@@ -40,7 +78,6 @@
 
         var parent = $(this).closest('ul');
         while (parent.hasClass('stv-list') && parent.prev().hasClass('stv-item')) {
-            console.info(parent, parent.prev());
             var disabled = $('input[type=hidden]:disabled', parent).length;
             var all = $('input[type=hidden]', parent).length;
             parent.prev()
