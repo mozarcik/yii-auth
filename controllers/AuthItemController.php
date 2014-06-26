@@ -123,11 +123,10 @@ abstract class AuthItemController extends AuthController
             $childItem = $am->getAuthItem($authName);
             
             $authLabel =  is_string($children) ? $children : $authName;
-            $addItemChild = true;
             if (isset($autogenItems[$authName])) {
                 $authLabel = $autogenItems[$authName]['label'];
-                if (is_array($children) && $autogenItems[$authName]['count'] > count($children) )
-                    $addItemChild = false;
+//                if (is_array($children) && $autogenItems[$authName]['count'] > count($children) )
+//                    $addItemChild = false;
             }
             
             if ($childItem === null) {
@@ -137,14 +136,14 @@ abstract class AuthItemController extends AuthController
                 }
             }
 
-            if ($addItemChild && !$am->hasItemChild($name, $authName)) {
+            if (!is_array($children) && !$am->hasItemChild($name, $authName)) {
                 $am->addItemChild($name, $authName);
                 if ($am instanceof CPhpAuthManager) {
                     $am->save();
                 }
             }
 
-            if (is_array($children) && !$addItemChild) {
+            if (is_array($children)) {
                 $this->addItemChild($name, $children, $authName);
             }
         }
@@ -350,8 +349,8 @@ abstract class AuthItemController extends AuthController
                 }
 
                 $operations = array(
-                    'read' => 'read {model}',
                     'create' => 'create {model}',
+                    'read' => 'read {model}',
                     'update' => 'update {model}',
                     'delete' => 'delete {model}',
                 );
@@ -371,28 +370,46 @@ abstract class AuthItemController extends AuthController
                         unset($authItems[$authName]);
                     }
 
-                    $subItems = array();
-                    foreach (array('own', 'related') as $subItem) {
-                        $l = Yii::t('AuthModule.main', "$operationName $subItem {model}", array('{model}' => $modelLabel));
-                        if (isset($authItems["$authName.$subItem"])) {
-                            $l = CHtml::link($l, array('/auth/' . $this->getItemControllerId($authItems["$authName.$subItem"]->type) . '/view', 'name' => $authName));
-                            unset($authItems["$authName.$subItem"]);
+                    $item = null;
+                    if ($operationName !== 'create') {
+                        $relLabel = Yii::t('AuthModule.main', "$operationName related {model}", array('{model}' => $modelLabel));
+                        if (isset($authItems["$authName.related"])) {
+                            $relLabel = CHtml::link($relLabel, array('/auth/' . $this->getItemControllerId($authItems["$authName.related"]->type) . '/view', 'name' => "$authName.related"));
+                            unset($authItems["$authName.related"]);
                         }
-                        $subItems[] = array(
-                            'label' => $l,
-                            'rightControl' => $rightControl . CHtml::activeHiddenField($formModel, "items[$model][$operationName][$subItem]", array(
-                                'disabled' => !isset($descendants["$authName.$subItem"]),
-                                'value' => Yii::t('AuthModule.main', "$operationName $subItem {model}", array('{model}' => $modelLabel))
+
+                        $ownLabel = Yii::t('AuthModule.main', "$operationName own {model}", array('{model}' => $modelLabel));
+                        if (isset($authItems["$authName.related.own"])) {
+                            $ownLabel = CHtml::link($ownLabel, array('/auth/' . $this->getItemControllerId($authItems["$authName.related.own"]->type) . '/view', 'name' => "$authName.related.own"));
+                            unset($authItems["$authName.related.own"]);
+                        }
+                        $item = array(
+                            'label' => $relLabel,
+                            'rightControl' => $rightControl . CHtml::activeHiddenField($formModel, "items[$model.$operationName][related]", array(
+                                'disabled' => !isset($descendants["$authName.related"]),
+                                'value' => Yii::t('AuthModule.main', "$operationName related {model}", array('{model}' => $modelLabel))
                             )),
+                            'htmlOptions' => array('id' => "$module-$model-$operationName-related", 'style' => 'display:none;'),
+                            'items' => array(
+                                array(
+                                    'label' => $ownLabel,
+                                    'rightControl' => $rightControl . CHtml::activeHiddenField($formModel, "items[$model.$operationName][related][own]", array(
+                                        'disabled' => !isset($descendants["$authName.related.own"]),
+                                        'value' => Yii::t('AuthModule.main', "$operationName own {model}", array('{model}' => $modelLabel))
+                                    )),
+                                    'htmlOptions' => array('id' => "$module-$model-$operationName-related-own", 'style' => 'display:none;'),
+                                    'items' => array(),
+                                )
+                            ),
                         );
                     }
 
-                    $hiddenField = CHtml::activeHiddenField($formModel, "items[$model][$operationName]", array('disabled' => !isset($descendants[$authName]), 'value' => $authLabel));
+                    $hiddenField = CHtml::activeHiddenField($formModel, "items[$model.$operationName]", array('disabled' => !isset($descendants[$authName]), 'value' => $authLabel));
                     $modelOperations[] = array(
                         'label'=> $label,
                         'rightControl' => $rightControl.$hiddenField,
                         'htmlOptions' => array('id' => "$module-$model-$operationName", 'style' => 'display:none;'),
-                        'items' => $subItems,
+                        'items' => $item === null ? array() : array($item),
                     );
                 }
 
@@ -418,7 +435,7 @@ abstract class AuthItemController extends AuthController
                 $operationsOptions[$module]['items'][] = array(
                     'label' => $label,
                     'htmlOptions' => array('id' => "$module-$model", 'style' => 'display:none;'),
-                    'rightControl' => $rightControl.CHtml::activeHiddenField($formModel, "items[$model]", array('disabled' => !isset($descendants[$model]), 'value' => $model::label(2))),
+                    'rightControl' => $rightControl,
                     'items' => $modelOperations,
                 );
             }

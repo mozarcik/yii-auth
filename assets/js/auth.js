@@ -6,16 +6,28 @@
         _settings = $.extend(_settings, settings);
     };
 
+    $.fn.topLevel = function(sel) {
+        var master = $(this);
+        return master.find(sel).filter(function() {
+            return $(this).parentsUntil(master,sel).length === 0;
+        });
+    };
+
     authHelper.initToggleChildItems = function(treeSelector) {
         $('input:not(:disabled)', treeSelector).each(function(){$(this).toggleChildItems(true);});
 
         $(treeSelector).on('click', '.toggle-auth', function(e) {
             var toggle = !$(this).hasClass('fa-check');
-            $('input[type=hidden]', $(this).closest('li'))
-                .prop('disabled', !toggle);
-        
-            $('input[type=hidden]', $(this).closest('.stv-item'))
-                .prop('disabled', !toggle);
+            $('input[type=hidden]', $(this).closest('li')).prop('disabled', true);
+            
+            var input = $('input[type=hidden]', $(this).closest('.stv-item'));
+            if (input.length === 0) {
+                var ul = $(this).closest('.stv-item').next();
+                input = ul.find('.stv-item input[type=hidden]').filter(function () {
+                    return $('input[type=hidden]', $(this).closest('ul').not(ul).prev()).length === 0;
+                });
+            }
+            input.prop('disabled', !toggle);
 
             $(this).toggleChildItems(toggle);
         });
@@ -40,8 +52,8 @@
 
         var parent = $(this).closest('ul');
         while (parent.hasClass('stv-list') && parent.prev().hasClass('stv-item')) {
-            var disabled = $('input[type=hidden]:disabled', parent).length;
-            var all = $('input[type=hidden]', parent).length;
+            var disabled = $('input[type=hidden]:disabled', parent.parent()).length;
+            var all = $('input[type=hidden]', parent.parent()).length;
             parent.prev()
                     .toggleClass('auth-all-enabled', disabled === 0)
                     .toggleClass('auth-some-enabled', all !== disabled && disabled !== 0);
@@ -56,9 +68,6 @@
 
             $('span.title', parent.prev())
                     .toggleClass('text-muted', all === disabled);
-
-            $('input[type=hidden]', parent.prev())
-                    .prop('disabled', disabled !== 0);
 
             parent = parent.parent().closest('ul');
         }
