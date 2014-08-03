@@ -22,7 +22,7 @@ abstract class AuthController extends CController
      */
     public $breadcrumbs = array();
     private $_autogenItems = null;
-    
+
     /**
      * Initializes the controller.
      */
@@ -34,9 +34,9 @@ abstract class AuthController extends CController
 
     /**
      * Returns the authorization item type as a string.
-     * @param string $type the item type (0=operation, 1=task, 2=role).
-     * @param boolean $plural whether to return the name in plural.
-     * @return string the text.
+     * @param  string     $type   the item type (0=operation, 1=task, 2=role).
+     * @param  boolean    $plural whether to return the name in plural.
+     * @return string     the text.
      * @throws CException if the item type is invalid.
      */
     public function getItemTypeText($type, $plural = false)
@@ -59,13 +59,14 @@ abstract class AuthController extends CController
             default:
                 throw new CException('Auth item type "' . $type . '" is valid.');
         }
+
         return $name;
     }
 
     /**
      * Returns the controllerId for the given authorization item.
-     * @param string $type the item type (0=operation, 1=task, 2=role).
-     * @return string the controllerId.
+     * @param  string     $type the item type (0=operation, 1=task, 2=role).
+     * @return string     the controllerId.
      * @throws CException if the item type is invalid.
      */
     public function getItemControllerId($type)
@@ -87,12 +88,13 @@ abstract class AuthController extends CController
             default:
                 throw new CException('Auth item type "' . $type . '" is valid.');
         }
+
         return $controllerId;
     }
 
     /**
      * Capitalizes the first word in the given string.
-     * @param string $string the string to capitalize.
+     * @param  string $string the string to capitalize.
      * @return string the capitalized string.
      * @see http://stackoverflow.com/questions/2517947/ucfirst-function-for-multibyte-character-encodings
      */
@@ -104,6 +106,7 @@ abstract class AuthController extends CController
 
         $encoding = Yii::app()->charset;
         $firstChar = mb_strtoupper(mb_substr($string, 0, 1, $encoding), $encoding);
+
         return $firstChar . mb_substr($string, 1, mb_strlen($string, $encoding) - 1, $encoding);
     }
 
@@ -200,6 +203,7 @@ abstract class AuthController extends CController
         }
 
         $this->_autogenItems = $items;
+
         return $items;
     }
 
@@ -210,7 +214,7 @@ abstract class AuthController extends CController
             CAuthItem::TYPE_TASK,
             CAuthItem::TYPE_ROLE,
         );
-        
+
         return $validTypes;
     }
 }

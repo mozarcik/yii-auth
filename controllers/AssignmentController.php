@@ -56,7 +56,7 @@ class AssignmentController extends AuthController
             if ($am->isAssigned($authName, $id)) {
                 $assigned[] = $authName;
             }
-            
+
             if ($assign && !$am->isAssigned($authName, $id)) {
                 $am->assign($authName, $id);
                 if ($am instanceof CPhpAuthManager) {
@@ -75,8 +75,6 @@ class AssignmentController extends AuthController
 
         return $assigned;
     }
-
-
 
     /**
      * Displays the assignments for the user with the given id.
@@ -171,8 +169,8 @@ class AssignmentController extends AuthController
 
     /**
      * Returns a list of possible assignments for the user with the given id.
-     * @param string $userId the user id.
-     * @return array the assignment options.
+     * @param  string $userId the user id.
+     * @return array  the assignment options.
      */
     protected function getAssignmentOptions($userId)
     {
@@ -293,7 +291,6 @@ class AssignmentController extends AuthController
                     );
                 }
 
-
                 $label = $model::label(2);
 
                 if (isset($authItems[$model])) {
@@ -337,7 +334,7 @@ class AssignmentController extends AuthController
 
             $opLabel = trim($childItem->description) !== '' ? trim($childItem->description) : $childName;
             $label = CHtml::link($opLabel, array('/auth/' . $this->getItemControllerId($childItem->type) . '/view', 'name' => $childName));
-			$rc = '<i class="fa fa-lg toggle-auth fa-times text-danger"></i>';
+            $rc = '<i class="fa fa-lg toggle-auth fa-times text-danger"></i>';
 
             $options[$typeText]['items'][] = array(
                 'label' => $label,

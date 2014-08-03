@@ -4,8 +4,8 @@
 /* @var $form TbActiveForm */
 
 $this->breadcrumbs = array(
-	$this->capitalize($this->getTypeText(true)) => array('index'),
-	Yii::t('AuthModule.main', 'New {type}', array('{type}' => $this->getTypeText())),
+    $this->capitalize($this->getTypeText(true)) => array('index'),
+    Yii::t('AuthModule.main', 'New {type}', array('{type}' => $this->getTypeText())),
 );
 ?>
 <?php
@@ -20,9 +20,9 @@ $this->widget(
 
 <section class="row">
     <?php $form = $this->beginWidget('CActiveForm',  array(
- 	   'id' => $this->id . '-form',
- 	   'enableAjaxValidation' => true,
-)	); ?>
+       'id' => $this->id . '-form',
+       'enableAjaxValidation' => true,
+)    ); ?>
 
     <article class="col-sm-12">
         <?php echo $form->errorSummary($model); ?>
@@ -48,5 +48,3 @@ $this->widget(
     </article>
     <?php $this->endWidget(); ?>
 </section>
-
-

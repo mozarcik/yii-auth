@@ -27,14 +27,14 @@ $this->widget(
             array(
                 'header' => Yii::t('AuthModule.main', 'User'),
                 'type' => 'raw',
-                'value' => function($data, $row) use ($controller) {
+                'value' => function ($data, $row) use ($controller) {
                     return CHtml::link(CHtml::value($data, $controller->module->userNameColumn), array('view', 'id' => $data->{$controller->module->userIdColumn}));
                 },
             ),
             array(
                 'header' => Yii::t('AuthModule.main', 'Assigned items'),
                 'type' => 'raw',
-                'value' => function($data, $row) use ($controller) {
+                'value' => function ($data, $row) use ($controller) {
                     $content = '';
                     /* @var $am CAuthManager|AuthBehavior */
                     $am = Yii::app()->getAuthManager();
@@ -45,12 +45,13 @@ $this->widget(
                         $content .= $itemPermission['item']->description;
                         $content .= ' <small>' . $controller->getItemTypeText($itemPermission['item']->type, false) . '</small><br />';
                     }
+
                     return $content;
                 }
             ),
             array(
                 'type' => 'raw',
-                'value' => function($data, $row) use ($controller) {
+                'value' => function ($data, $row) use ($controller) {
                     return CHtml::link(
                         '<i class="glyphicon glyphicon-eye-open"></i>',
                         array('view', 'id' => $data->{$controller->module->userIdColumn}),

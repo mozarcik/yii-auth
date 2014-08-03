@@ -58,7 +58,7 @@ class AuthModule extends CWebModule
     public $viewDir;
 
     /**
-     * List of modules used for autogenerating auth items. 
+     * List of modules used for autogenerating auth items.
      * Format:
      *      array(
      *          'module' => 'Module Label',
@@ -152,9 +152,9 @@ class AuthModule extends CWebModule
 
     /**
      * The pre-filter for controller actions.
-     * @param CController $controller the controller.
-     * @param CAction $action the action.
-     * @return boolean whether the action should be executed.
+     * @param  CController               $controller the controller.
+     * @param  CAction                   $action     the action.
+     * @return boolean                   whether the action should be executed.
      * @throws CException|CHttpException if user is denied access.
      */
     public function beforeControllerAction($controller, $action)

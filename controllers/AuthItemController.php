@@ -69,7 +69,7 @@ abstract class AuthItemController extends AuthController
 
     /**
      * Displays a form for updating the item with the given name.
-     * @param string $name name of the item.
+     * @param  string         $name name of the item.
      * @throws CHttpException if the authorization item is not found.
      */
     public function actionUpdate($name)
@@ -121,14 +121,14 @@ abstract class AuthItemController extends AuthController
         foreach ($items as $citem => $children) {
             $authName = ($parent !== null ? $parent.'.' : '') . $citem;
             $childItem = $am->getAuthItem($authName);
-            
+
             $authLabel =  is_string($children) ? $children : $authName;
             if (isset($autogenItems[$authName])) {
                 $authLabel = $autogenItems[$authName]['label'];
 //                if (is_array($children) && $autogenItems[$authName]['count'] > count($children) )
 //                    $addItemChild = false;
             }
-            
+
             if ($childItem === null) {
                 $am->createAuthItem($authName, CAuthItem::TYPE_OPERATION, $authLabel);
                 if ($parent !== null && !$am->hasItemChild($parent, $authName)) {
@@ -162,7 +162,7 @@ abstract class AuthItemController extends AuthController
 
         $item = $am->getAuthItem($name);
         $childOptions = $this->getItemChildOptions($item->name);
-        
+
         if (isset($_POST['AddAuthItemForm'])) {
             $formModel->attributes = $_POST['AddAuthItemForm'];
             if ($formModel->validate()) {
@@ -236,7 +236,7 @@ abstract class AuthItemController extends AuthController
 
     /**
      * Removes the parent from the item with the given name.
-     * @param string $itemName name of the item.
+     * @param string $itemName   name of the item.
      * @param string $parentName name of the parent.
      */
     public function actionRemoveParent($itemName, $parentName)
@@ -256,7 +256,7 @@ abstract class AuthItemController extends AuthController
 
     /**
      * Removes the child from the item with the given name.
-     * @param string $itemName name of the item.
+     * @param string $itemName  name of the item.
      * @param string $childName name of the child.
      */
     public function actionRemoveChild($itemName, $childName)
@@ -279,10 +279,10 @@ abstract class AuthItemController extends AuthController
         $options = array();
         /* @var $am CAuthManager|AuthBehavior */
         $am = Yii::app()->getAuthManager();
-        
+
         foreach ($ancestors as $authItem) {
             $authItem = $authItem['item'];
-            
+
             $typeText = $this->getItemTypeText($authItem->type, true);
             if (!isset($options[$typeText])) {
                 $options[$typeText] = array(
@@ -305,8 +305,6 @@ abstract class AuthItemController extends AuthController
         return $options;
     }
 
-   
-
     protected function getDescendantsTree($descendants)
     {
         $options = array();
@@ -316,7 +314,7 @@ abstract class AuthItemController extends AuthController
         $validChildTypes = $this->getValidChildTypes();
         $rightControl = '<i class="fa fa-lg fa-times text-danger toggle-auth"></i>';
         $formModel = new AddAuthItemForm();
-        
+
         $operationsOptions = array();
         foreach ($this->module->modules as $module => $config) {
             $moduleInstance = Yii::app()->getModule($module);
@@ -425,7 +423,6 @@ abstract class AuthItemController extends AuthController
                     );
                 }
 
-
                 $label = $model::label(2);
 
                 if (isset($authItems[$model])) {
@@ -472,7 +469,7 @@ abstract class AuthItemController extends AuthController
 
             $opLabel = trim($childItem->description) !== '' ? trim($childItem->description) : $childName;
             $label = CHtml::link($opLabel, array('/auth/' . $this->getItemControllerId($childItem->type) . '/view', 'name' => $childName));
-			$rc = '<i class="fa fa-lg toggle-auth fa-times text-danger"></i>';
+            $rc = '<i class="fa fa-lg toggle-auth fa-times text-danger"></i>';
 
             $options[$typeText]['items'][] = array(
                 'label' => $label,
@@ -480,14 +477,14 @@ abstract class AuthItemController extends AuthController
                 'rightControl' => $rc.CHtml::activeHiddenField($formModel, "items[$childName]", array('disabled' => !isset($descendants[$childName]), 'value' => $opLabel,)),
             );
         }
-        
+
         return $options;
     }
 
     /**
      * Returns a list of possible children for the item with the given name.
-     * @param string $itemName name of the item.
-     * @return array the child options.
+     * @param  string $itemName name of the item.
+     * @return array  the child options.
      */
     protected function getItemChildOptions($itemName)
     {
@@ -547,8 +544,8 @@ abstract class AuthItemController extends AuthController
 
     /**
      * Returns the authorization item type as a string.
-     * @param boolean $plural whether to return the name in plural.
-     * @return string the text.
+     * @param  boolean $plural whether to return the name in plural.
+     * @return string  the text.
      */
     public function getTypeText($plural = false)
     {

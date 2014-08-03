@@ -30,11 +30,11 @@ class CachedDbAuthManager extends CDbAuthManager implements ICachedAuthManager
 
     /**
      * Performs access check for the specified user.
-     * @param string $itemName the name of the operation that need access check.
-     * @param integer $userId the user id.
-     * @param array $params name-value pairs that would be passed to biz rules associated
-     * with the tasks and roles assigned to the user.
-     * @param boolean $allowCaching whether to allow caching the result of access check.
+     * @param  string  $itemName     the name of the operation that need access check.
+     * @param  integer $userId       the user id.
+     * @param  array   $params       name-value pairs that would be passed to biz rules associated
+     *                               with the tasks and roles assigned to the user.
+     * @param  boolean $allowCaching whether to allow caching the result of access check.
      * @return boolean whether the operations can be performed by the user.
      */
     public function checkAccess($itemName, $userId, $params = array(), $allowCaching = true)
@@ -64,24 +64,26 @@ class CachedDbAuthManager extends CDbAuthManager implements ICachedAuthManager
 
     /**
      * Flushes the access cache for the specified user.
-     * @param string $itemName the name of the operation that need access check.
-     * @param integer $userId the user id.
+     * @param  string  $itemName the name of the operation that need access check.
+     * @param  integer $userId   the user id.
      * @return boolean whether access was flushed.
      */
     public function flushAccess($itemName, $userId)
     {
         if (($cache = $this->getCache()) !== null) {
             $cacheKey = $this->resolveCacheKey($itemName, $userId);
+
             return $cache->delete($cacheKey);
         }
+
         return false;
     }
 
     /**
      * Returns the key to use when caching.
-     * @param string $itemName the name of the operation that need access check.
-     * @param array $params name-value pairs that would be passed to biz rules associated
-     * with the tasks and roles assigned to the user.
+     * @param  string $itemName the name of the operation that need access check.
+     * @param  array  $params   name-value pairs that would be passed to biz rules associated
+     *                          with the tasks and roles assigned to the user.
      * @return string the key.
      */
     protected function resolveCacheKey($itemName, $userId)

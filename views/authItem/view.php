@@ -8,10 +8,9 @@
 /* @var $childOptions array */
 
 $this->breadcrumbs = array(
-	$this->capitalize($this->getTypeText(true)) => array('index'),
-	$item->description,
+    $this->capitalize($this->getTypeText(true)) => array('index'),
+    $item->description,
 );
-
 
 Yii::app()->getClientScript()->registerCss('toggle-css', '.toggle-auth {min-width: 1em;text-align: center;}');
 ?>
@@ -24,7 +23,7 @@ $this->widget(
     )
 );?>
 <fieldset>
-    
+
     <h3>
         <?php echo CHtml::encode($item->description); ?> <small><?php echo $this->getTypeText(); ?></small>
         <div class="pull-right">
@@ -57,7 +56,7 @@ $this->widget(
 <hr />
 
 <div class="row">
-    
+
 	<div class="col-sm-6">
         <fieldset>
             <h3>
@@ -83,8 +82,8 @@ $this->widget(
                     'itemTemplate' => '{icon}<span class="title text-muted">{label}</span><span class="right-control">{rightControl}</span>',
                 ));?>
                 <?php Yii::app()->getClientScript()->registerScript('initAuthHelper'.__FILE__, "authHelper.initToggleChildItems('#{$widget->id}');", CClientScript::POS_READY);?>
-                <?php Yii::app()->getClientScript()->registerScript('collapseAll'.__FILE__, "$('#collapse-all').click(function(e){ $('#{$widget->id}').simpleTreeView('collapseAll'); return false;});", CClientScript::POS_READY);?>
-                <?php Yii::app()->getClientScript()->registerScript('expandSelected'.__FILE__, "$('#expand-selected').click(function(e){ authHelper.expandSelectedBranches('#{$widget->id}'); return false;});", CClientScript::POS_READY);?>
+                <?php Yii::app()->getClientScript()->registerScript('collapseAll'.__FILE__, "$('#collapse-all').click(function (e) { $('#{$widget->id}').simpleTreeView('collapseAll'); return false;});", CClientScript::POS_READY);?>
+                <?php Yii::app()->getClientScript()->registerScript('expandSelected'.__FILE__, "$('#expand-selected').click(function (e) { authHelper.expandSelectedBranches('#{$widget->id}'); return false;});", CClientScript::POS_READY);?>
                 <?php $this->endWidget(); ?>
             <?php endif; ?>
         </fieldset>
@@ -104,8 +103,8 @@ $this->widget(
                 <a href="#" id="expand-all-ancestors" class="btn btn-default"><?php echo Yii::t('AuthModule.main', 'Expand selected');?></a>
                 <?php $widget = $this->widget('SimpleTreeView', array('items' => $ancestorsTree));?>
                 <?php Yii::app()->getClientScript()->registerScript('initAuthHelper'.__FILE__, "authHelper.initToggleChildItems('#{$widget->id}');", CClientScript::POS_READY);?>
-                <?php Yii::app()->getClientScript()->registerScript('collapseAllAncestors'.__FILE__, "$('#collapse-all-ancestors').click(function(e){ $('#{$widget->id}').simpleTreeView('collapseAll'); return false;});", CClientScript::POS_READY);?>
-                <?php Yii::app()->getClientScript()->registerScript('expandAllAncestors'.__FILE__, "$('#expand-all-ancestors').click(function(e){ $('#{$widget->id}').simpleTreeView('expandAll'); return false;});", CClientScript::POS_READY);?>
+                <?php Yii::app()->getClientScript()->registerScript('collapseAllAncestors'.__FILE__, "$('#collapse-all-ancestors').click(function (e) { $('#{$widget->id}').simpleTreeView('collapseAll'); return false;});", CClientScript::POS_READY);?>
+                <?php Yii::app()->getClientScript()->registerScript('expandAllAncestors'.__FILE__, "$('#expand-all-ancestors').click(function (e) { $('#{$widget->id}').simpleTreeView('expandAll'); return false;});", CClientScript::POS_READY);?>
             <?php endif; ?>
         </fieldset>
 	</div>
