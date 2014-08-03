@@ -42,7 +42,7 @@ class ModelsModuleMap extends CApplicationComponent
                 if (isset($exclude[$module]) && in_array($model, $exclude[$module])) {
                     continue;
                 }
-                
+
                 $map[$model] = $module;
             }
         }
@@ -58,6 +58,7 @@ class ModelsModuleMap extends CApplicationComponent
 
         if (!isset($map[$model])) {
             Yii::log("Cannot find module for class $model!", CLogger::LEVEL_WARNING);
+
             return $model;
         }
 

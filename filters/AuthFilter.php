@@ -20,8 +20,8 @@ class AuthFilter extends CFilter
 
     /**
      * Performs the pre-action filtering.
-     * @param CFilterChain $filterChain the filter chain that the filter is on.
-     * @return boolean whether the filtering process should continue and the action should be executed.
+     * @param  CFilterChain   $filterChain the filter chain that the filter is on.
+     * @return boolean        whether the filtering process should continue and the action should be executed.
      * @throws CHttpException if the user is denied access.
      */
     protected function preFilter($filterChain)

@@ -21,7 +21,7 @@ class AuthBehavior extends CBehavior
 
     /**
      * Return thee parents and children of specific item or all items
-     * @param string $itemName name of the item.
+     * @param  string $itemName name of the item.
      * @return array
      */
     public function getItems($itemName = null)
@@ -36,7 +36,7 @@ class AuthBehavior extends CBehavior
     /**
      * Sets the parents of specific item
      * @param string $itemName name of the item.
-     * @param array $parents
+     * @param array  $parents
      */
     public function setItemParents($itemName, $parents)
     {
@@ -46,7 +46,7 @@ class AuthBehavior extends CBehavior
     /**
      * Sets the children of specific item
      * @param string $itemName name of the item.
-     * @param array $children
+     * @param array  $children
      */
     public function setItemChildren($itemName, $children)
     {
@@ -55,7 +55,7 @@ class AuthBehavior extends CBehavior
 
     /**
      * Gets the parents of specific item if exists
-     * @param string $itemName name of the item.
+     * @param  string $itemName name of the item.
      * @return array
      */
     public function getParents($itemName)
@@ -70,7 +70,7 @@ class AuthBehavior extends CBehavior
 
     /**
      * Gets the children of specific item if exists
-     * @param string $itemName name of the item.
+     * @param  string $itemName name of the item.
      * @return array
      */
     public function getChildren($itemName)
@@ -85,8 +85,8 @@ class AuthBehavior extends CBehavior
 
     /**
      * Returns whether the given item has a specific parent.
-     * @param string $itemName name of the item.
-     * @param string $parentName name of the parent.
+     * @param  string  $itemName   name of the item.
+     * @param  string  $parentName name of the parent.
      * @return boolean the result.
      */
     public function hasParent($itemName, $parentName)
@@ -95,13 +95,14 @@ class AuthBehavior extends CBehavior
         if (in_array($parentName, $parents)) {
             return true;
         }
+
         return false;
     }
 
     /**
      * Returns whether the given item has a specific child.
-     * @param string $itemName name of the item.
-     * @param string $childName name of the child.
+     * @param  string  $itemName  name of the item.
+     * @param  string  $childName name of the child.
      * @return boolean the result.
      */
     public function hasChild($itemName, $childName)
@@ -110,49 +111,53 @@ class AuthBehavior extends CBehavior
         if (in_array($childName, $children)) {
             return true;
         }
+
         return false;
     }
 
     /**
      * Returns whether the given item has a specific ancestor.
-     * @param string $itemName name of the item.
-     * @param string $ancestorName name of the ancestor.
+     * @param  string  $itemName     name of the item.
+     * @param  string  $ancestorName name of the ancestor.
      * @return boolean the result.
      */
     public function hasAncestor($itemName, $ancestorName)
     {
         $ancestors = $this->getAncestors($itemName);
+
         return isset($ancestors[$ancestorName]);
     }
 
     /**
      * Returns whether the given item has a specific descendant.
-     * @param string $itemName name of the item.
-     * @param string $descendantName name of the descendant.
+     * @param  string  $itemName       name of the item.
+     * @param  string  $descendantName name of the descendant.
      * @return boolean the result.
      */
     public function hasDescendant($itemName, $descendantName)
     {
         $descendants = $this->getDescendants($itemName);
+
         return isset($descendants[$descendantName]);
     }
 
     /**
      * Returns flat array of all ancestors.
-     * @param string $itemName name of the item.
-     * @return array the ancestors.
+     * @param  string $itemName name of the item.
+     * @return array  the ancestors.
      */
     public function getAncestors($itemName)
     {
         $ancestors = $this->getAncestor($itemName);
+
         return $this->flattenPermissions($ancestors);
     }
 
     /**
      * Returns all ancestors for the given item recursively.
-     * @param string $itemName name of the item.
-     * @param integer $depth current depth.
-     * @return array the ancestors.
+     * @param  string  $itemName name of the item.
+     * @param  integer $depth    current depth.
+     * @return array   the ancestors.
      */
     public function getAncestor($itemName, $depth = 0)
     {
@@ -175,25 +180,27 @@ class AuthBehavior extends CBehavior
                 'depth' => $depth
             );
         }
+
         return $ancestors;
     }
 
     /**
      * Returns flat array of all the descendants.
-     * @param string $itemName name of the item.
-     * @return array the descendants.
+     * @param  string $itemName name of the item.
+     * @return array  the descendants.
      */
     public function getDescendants($itemName)
     {
         $descendants = $this->getDescendant($itemName);
+
         return $this->flattenPermissions($descendants);
     }
 
     /**
      * Returns all the descendants for the given item recursively.
-     * @param string $itemName name of the item.
-     * @param integer $depth current depth.
-     * @return array the descendants.
+     * @param  string  $itemName name of the item.
+     * @param  integer $depth    current depth.
+     * @return array   the descendants.
      */
     public function getDescendant($itemName, $depth = 0)
     {
@@ -216,14 +223,15 @@ class AuthBehavior extends CBehavior
                 'depth' => $depth,
             );
         }
+
         return $descendants;
     }
 
     /**
      * Returns the permission tree for the given items.
-     * @param CAuthItem[] $items items to process. If omitted the complete tree will be returned.
-     * @param integer $depth current depth.
-     * @return array the permissions.
+     * @param  CAuthItem[] $items items to process. If omitted the complete tree will be returned.
+     * @param  integer     $depth current depth.
+     * @return array       the permissions.
      */
     private function getPermissions($items = null, $depth = 0)
     {
@@ -247,19 +255,20 @@ class AuthBehavior extends CBehavior
 
     /**
      * Builds the permissions for the given item.
-     * @param string $itemName name of the item.
-     * @return array the permissions.
+     * @param  string $itemName name of the item.
+     * @return array  the permissions.
      */
     private function getItemPermissions($itemName)
     {
         $item = $this->owner->getAuthItem($itemName);
+
         return $item instanceof CAuthItem ? $this->getPermissions($item->getChildren()) : array();
     }
 
     /**
      * Returns the permissions for the items with the given names.
-     * @param string[] $names list of item names.
-     * @return array the permissions.
+     * @param  string[] $names list of item names.
+     * @return array    the permissions.
      */
     public function getItemsPermissions($names)
     {
@@ -279,7 +288,7 @@ class AuthBehavior extends CBehavior
 
     /**
      * Flattens the given permission tree.
-     * @param array $permissions the permissions tree.
+     * @param  array $permissions the permissions tree.
      * @return array the permissions.
      */
     public function flattenPermissions($permissions)
@@ -300,6 +309,7 @@ class AuthBehavior extends CBehavior
                 $flattened = array_merge($flattened, $this->flattenPermissions($parents));
             }
         }
+
         return $flattened;
     }
 }

@@ -54,7 +54,7 @@ $this->widget(
                         'collapse' => array('label' => Yii::t('AuthModule.main', 'Collapse all')),
                         'expand' => array(
                             'label' => Yii::t('AuthModule.main', 'Expand selected'),
-                            'click' => "function(e){ authHelper.expandSelectedBranches('#stv-assignments'); return false;}"
+                            'click' => "function (e) { authHelper.expandSelectedBranches('#stv-assignments'); return false;}"
                         ),
                     )
                 ));?>
