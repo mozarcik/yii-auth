@@ -236,29 +236,24 @@ class AssignmentController extends AuthController
                     continue;
                 }
 
-                $operations = array(
-                    'read' => 'read {model}',
-                    'create' => 'create {model}',
-                    'update' => 'update {model}',
-                    'delete' => 'delete {model}',
-                );
+                $operations = array('read', 'create', 'update', 'delete');
 
                 $modelOperations = array();
-                foreach ($operations as $operationName => $operationLabel) {
+                foreach ($operations as $operationName) {
                     $authName = "$model.$operationName";
 
                     $modelLabel = $class->hasMethod('label') ? $model::label(2) : $model;
-                    $authLabel = Yii::t('AuthModule.main', $operationLabel, array('{model}' => $modelLabel));
-                    $label = $authLabel;
+                    $authLabels = $this->getAuthLabels($operationName, $modelLabel);
+                    $label = $authLabels['main'];
 
                     if (isset($authItems[$authName])) {
-                        $label = CHtml::link($authLabel, array('/auth/' . $this->getItemControllerId($authItems[$authName]->type) . '/view', 'name' => $authName));
+                        $label = CHtml::link($authLabels['main'], array('/auth/' . $this->getItemControllerId($authItems[$authName]->type) . '/view', 'name' => $authName));
                         unset($authItems[$authName]);
                     }
 
                     $subItems = array();
                     foreach (array('own', 'related') as $subItem) {
-                        $l = Yii::t('AuthModule.main', "$operationName $subItem {model}", array('{model}' => $modelLabel));
+                        $l = $authLabels[$subItem];
                         if (isset($authItems["$authName.$subItem"])) {
                             $l = CHtml::link($l, array('/auth/' . $this->getItemControllerId($authItems["$authName.$subItem"]->type) . '/view', 'name' => $authName));
                             unset($authItems["$authName.$subItem"]);
@@ -267,12 +262,12 @@ class AssignmentController extends AuthController
                             'label' => $l,
                             'rightControl' => $rightControl . CHtml::activeHiddenField($formModel, "items[$model][$operationName][$subItem]", array(
                                 'disabled' => !isset($assignments["$authName.$subItem"]),
-                                'value' => Yii::t('AuthModule.main', "$operationName $subItem {model}", array('{model}' => $modelLabel))
+                                'value' => $authLabels[$subItem],
                             )),
                         );
                     }
 
-                    $hiddenField = CHtml::activeHiddenField($formModel, "items[$model][$operationName]", array('disabled' => !isset($assignments[$authName]), 'value' => $authLabel));
+                    $hiddenField = CHtml::activeHiddenField($formModel, "items[$model][$operationName]", array('disabled' => !isset($assignments[$authName]), 'value' => $authLabels['main']));
                     $modelOperations[] = array(
                         'label'=> $label,
                         'rightControl' => $rightControl.$hiddenField,

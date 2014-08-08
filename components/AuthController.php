@@ -137,6 +137,41 @@ abstract class AuthController extends CController
         );
     }
 
+    protected function getAuthLabels($operationName, $modelLabel)
+    {
+        switch($operationName) {
+            case 'read':
+                return array(
+                    'main' => Yii::t('AuthModule.main', 'read {model}', array('{model}' => $modelLabel)),
+                    'own' => Yii::t('AuthModule.main', 'read own {model}', array('{model}' => $modelLabel)),
+                    'related' => Yii::t('AuthModule.main', 'read related {model}', array('{model}' => $modelLabel)),
+                );
+                break;
+            case 'create':
+                return array(
+                    'main' => Yii::t('AuthModule.main', 'create {model}', array('{model}' => $modelLabel)),
+                    'own' => Yii::t('AuthModule.main', 'create own {model}', array('{model}' => $modelLabel)),
+                    'related' => Yii::t('AuthModule.main', 'create related {model}', array('{model}' => $modelLabel)),
+                );
+                break;
+            case 'update':
+                return array(
+                    'main' => Yii::t('AuthModule.main', 'update {model}', array('{model}' => $modelLabel)),
+                    'own' => Yii::t('AuthModule.main', 'update own {model}', array('{model}' => $modelLabel)),
+                    'related' => Yii::t('AuthModule.main', 'update related {model}', array('{model}' => $modelLabel)),
+                );
+                break;
+            case 'delete':
+                return array(
+                    'main' => Yii::t('AuthModule.main', 'delete {model}', array('{model}' => $modelLabel)),
+                    'own' => Yii::t('AuthModule.main', 'delete own {model}', array('{model}' => $modelLabel)),
+                    'related' => Yii::t('AuthModule.main', 'delete related {model}', array('{model}' => $modelLabel)),
+                );
+                break;
+        }
+        return null;
+    }
+
     protected function getAutogenItems()
     {
         if ($this->_autogenItems !== null)
@@ -175,26 +210,18 @@ abstract class AuthController extends CController
                     continue;
                 }
 
-                $operations = array(
-                    'read' => 'read {model}',
-                    'create' => 'create {model}',
-                    'update' => 'update {model}',
-                    'delete' => 'delete {model}',
-                );
-
+                $operations = array('read', 'create', 'update', 'delete');
                 $modelLabel = $class->hasMethod('label') ? $model::label(2) : $model;
                 $items[$model] = array('label' => $modelLabel, 'count' => 4);
-                foreach ($operations as $operationName => $operationLabel) {
+                foreach ($operations as $operationName) {
                     if (!in_array(CAuthItem::TYPE_OPERATION, $validChildTypes))
                         continue;
 
-                    $authLabel = Yii::t('AuthModule.main', $operationLabel, array('{model}' => $modelLabel));
-                    $items["$model.$operationName"] = array('label' => $authLabel, 'count' => 2);
+                    $authLabels = $this->getAuthLabels($operationName, $modelLabel);
 
-                    foreach (array('own', 'related') as $subItem) {
-                        $l = Yii::t('AuthModule.main', "$operationName $subItem {model}", array('{model}' => $modelLabel));
-                        $items["$model.$operationName.$subItem"] = array('label' => $l, 'count' => 0);
-                    }
+                    $items["$model.$operationName"] = array('label' => $authLabels['main'], 'count' => 2);
+                    $items["$model.$operationName.own"] = array('label' => $authLabels['own'], 'count' => 0);
+                    $items["$model.$operationName.related"] = array('label' => $authLabels['related'], 'count' => 0);
                 }
             }
         }
