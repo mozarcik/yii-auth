@@ -15,6 +15,9 @@ class ModelsModuleMap extends CApplicationComponent
             if (isset($exclude[$module]) && $exclude[$module] == '*') {
                 continue;
             }
+            if (!file_exists(Yii::getPathOfAlias("$module.models"))) {
+                continue;
+            }
             Yii::import("$module.models.*");
             $filenames = CFileHelper::findFiles(Yii::getPathOfAlias("$module.models"), array (
                 'fileTypes'=> array('php'),
