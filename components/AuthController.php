@@ -220,8 +220,10 @@ abstract class AuthController extends CController
                     $authLabels = $this->getAuthLabels($operationName, $modelLabel);
 
                     $items["$model.$operationName"] = array('label' => $authLabels['main'], 'count' => 2);
-                    $items["$model.$operationName.own"] = array('label' => $authLabels['own'], 'count' => 0);
-                    $items["$model.$operationName.related"] = array('label' => $authLabels['related'], 'count' => 0);
+                    if ($operationName !== 'create') {
+                        $items["$model.$operationName.own"] = array('label' => $authLabels['own'], 'count' => 0);
+                        $items["$model.$operationName.related"] = array('label' => $authLabels['related'], 'count' => 0);
+                    }
                 }
             }
         }

@@ -252,19 +252,21 @@ class AssignmentController extends AuthController
                     }
 
                     $subItems = array();
-                    foreach (array('own', 'related') as $subItem) {
-                        $l = $authLabels[$subItem];
-                        if (isset($authItems["$authName.$subItem"])) {
-                            $l = CHtml::link($l, array('/auth/' . $this->getItemControllerId($authItems["$authName.$subItem"]->type) . '/view', 'name' => $authName));
-                            unset($authItems["$authName.$subItem"]);
+                    if ($operationName !== 'create') {
+                        foreach (array('own', 'related') as $subItem) {
+                            $l = $authLabels[$subItem];
+                            if (isset($authItems["$authName.$subItem"])) {
+                                $l = CHtml::link($l, array('/auth/' . $this->getItemControllerId($authItems["$authName.$subItem"]->type) . '/view', 'name' => $authName));
+                                unset($authItems["$authName.$subItem"]);
+                            }
+                            $subItems[] = array(
+                                'label' => $l,
+                                'rightControl' => $rightControl . CHtml::activeHiddenField($formModel, "items[$model][$operationName][$subItem]", array(
+                                    'disabled' => !isset($assignments["$authName.$subItem"]),
+                                    'value' => $authLabels[$subItem],
+                                )),
+                            );
                         }
-                        $subItems[] = array(
-                            'label' => $l,
-                            'rightControl' => $rightControl . CHtml::activeHiddenField($formModel, "items[$model][$operationName][$subItem]", array(
-                                'disabled' => !isset($assignments["$authName.$subItem"]),
-                                'value' => $authLabels[$subItem],
-                            )),
-                        );
                     }
 
                     $hiddenField = CHtml::activeHiddenField($formModel, "items[$model][$operationName]", array('disabled' => !isset($assignments[$authName]), 'value' => $authLabels['main']));
