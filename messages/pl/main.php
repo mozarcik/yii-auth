@@ -68,6 +68,7 @@ return array (
     'update {model}' => 'Aktualizuje {model}',
     'delete {model}' => 'Kasuje {model}',
     'Collapse all' => 'Zwiń wszystkie',
+    'Expand all' => 'Rozwiń wszystkie',
     'Expand selected' => 'Rozwiń zaznaczone',
     'read own {model}' => 'Odczytuje własne {model}',
     'create own {model}' => 'Tworzy własne {model}',

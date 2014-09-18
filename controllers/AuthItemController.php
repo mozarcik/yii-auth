@@ -112,39 +112,37 @@ abstract class AuthItemController extends AuthController
         );
     }
 
-    private function addItemChild($name, $items, $parent = null)
+    private function addItemChild($name, $items, $child = null)
     {
         /* @var $am CAuthManager|AuthBehavior */
         $am = Yii::app()->getAuthManager();
         $autogenItems = $this->getAutogenItems();
 
-        foreach ($items as $citem => $children) {
-            $authName = ($parent !== null ? $parent.'.' : '') . $citem;
-            $childItem = $am->getAuthItem($authName);
+        foreach ($items as $citem => $parents) {
+            $authName = ($child !== null ? $child.'.' : '') . $citem;
+            $authItem = $am->getAuthItem($authName);
             
-            $authLabel =  is_string($children) ? $children : $authName;
+            $authLabel =  is_string($parents) ? $parents : $authName;
             if (isset($autogenItems[$authName])) {
                 $authLabel = $autogenItems[$authName]['label'];
-//                if (is_array($children) && $autogenItems[$authName]['count'] > count($children) )
-//                    $addItemChild = false;
             }
             
-            if ($childItem === null) {
+            if ($authItem === null) {
                 $am->createAuthItem($authName, CAuthItem::TYPE_OPERATION, $authLabel);
-                if ($parent !== null && !$am->hasItemChild($parent, $authName)) {
-                    $am->addItemChild($parent, $authName);
+                if ($child !== null) {
+                    $am->addItemChild($authName, $child);
                 }
             }
 
-            if (!is_array($children) && !$am->hasItemChild($name, $authName)) {
+            if (!is_array($parents) && !$am->hasItemChild($name, $authName)) {
                 $am->addItemChild($name, $authName);
                 if ($am instanceof CPhpAuthManager) {
                     $am->save();
                 }
             }
 
-            if (is_array($children)) {
-                $this->addItemChild($name, $children, $authName);
+            if (is_array($parents)) {
+                $this->addItemChild($name, $parents, $authName);
             }
         }
     }
