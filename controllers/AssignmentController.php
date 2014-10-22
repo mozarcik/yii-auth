@@ -38,16 +38,20 @@ class AssignmentController extends AuthController
             $authName = ($parent !== null ? $parent.'.' : '') . $citem;
             $childItem = $am->getAuthItem($authName);
 
-            $authLabel =  is_string($children) ? $children : $authName;
+            $authLabel = is_string($children) ? $children : $authName;
+            $authRule = null;
+            $authData = null;
             $assign = true;
             if (isset($autogenItems[$authName])) {
                 $authLabel = $autogenItems[$authName]['label'];
+                $authRule = $autogenItems[$authName]['bizRule'];
+                $authData = $autogenItems[$authName]['data'];
                 if (is_array($children) && $autogenItems[$authName]['count'] > count($children) )
                     $assign = false;
             }
 
             if ($childItem === null) {
-                $am->createAuthItem($authName, CAuthItem::TYPE_OPERATION, $authLabel);
+                $am->createAuthItem($authName, CAuthItem::TYPE_OPERATION, $authLabel, $authRule, $authData);
                 if ($parent !== null && !$am->hasItemChild($parent, $authName)) {
                     $am->addItemChild($parent, $authName);
                 }

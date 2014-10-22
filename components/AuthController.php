@@ -212,17 +212,37 @@ abstract class AuthController extends CController
 
                 $operations = array('read', 'create', 'update', 'delete');
                 $modelLabel = $class->hasMethod('label') ? $model::label(2) : $model;
-                $items[$model] = array('label' => $modelLabel, 'count' => 4);
+                $items[$model] = array(
+                    'label' => $modelLabel,
+                    'count' => 4,
+                    'bizRule' => null,
+                    'data' => null,
+                );
                 foreach ($operations as $operationName) {
                     if (!in_array(CAuthItem::TYPE_OPERATION, $validChildTypes))
                         continue;
 
                     $authLabels = $this->getAuthLabels($operationName, $modelLabel);
 
-                    $items["$model.$operationName"] = array('label' => $authLabels['main'], 'count' => 2);
+                    $items["$model.$operationName"] = array(
+                        'label' => $authLabels['main'],
+                        'count' => 2,
+                        'bizRule' => null,
+                        'data' => null,
+                    );
                     if ($operationName !== 'create') {
-                        $items["$model.$operationName.own"] = array('label' => $authLabels['own'], 'count' => 0);
-                        $items["$model.$operationName.related"] = array('label' => $authLabels['related'], 'count' => 0);
+                        $items["$model.$operationName.own"] = array(
+                            'label' => $authLabels['own'],
+                            'count' => 0,
+                            'bizRule' => json_encode(array('RelationAuthorizer','isRelatedBizRule')),
+                            'data' => $operationName === 'read' ? serialize(array('allowEmpty' => true)) : null,
+                        );
+                        $items["$model.$operationName.related"] = array(
+                            'label' => $authLabels['related'],
+                            'count' => 0,
+                            'bizRule' => json_encode(array('RelationAuthorizer','isRelatedBizRule')),
+                            'data' => $operationName === 'read' ? serialize(array('allowEmpty' => true, 'level' => 1)) : serialize(array('level' => 1)),
+                        );
                     }
                 }
             }

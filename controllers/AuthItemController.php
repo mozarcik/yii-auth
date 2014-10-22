@@ -25,12 +25,7 @@ abstract class AuthItemController extends AuthController
         $dataProvider = new AuthItemDataProvider();
         $dataProvider->type = $this->type;
 
-        $this->render(
-            'index',
-            array(
-                'dataProvider' => $dataProvider,
-            )
-        );
+        $this->render('index', array('dataProvider' => $dataProvider));
     }
 
     /**
@@ -59,12 +54,7 @@ abstract class AuthItemController extends AuthController
 
         $model->type = $this->type;
 
-        $this->render(
-            'create',
-            array(
-                'model' => $model,
-            )
-        );
+        $this->render('create', array('model' => $model));
     }
 
     /**
@@ -103,13 +93,7 @@ abstract class AuthItemController extends AuthController
         $model->description = $item->description;
         $model->type = $item->type;
 
-        $this->render(
-            'update',
-            array(
-                'item' => $item,
-                'model' => $model,
-            )
-        );
+        $this->render('update', array('item' => $item, 'model' => $model));
     }
 
     private function addItemChild($name, $items, $child = null)
@@ -123,12 +107,16 @@ abstract class AuthItemController extends AuthController
             $authItem = $am->getAuthItem($authName);
             
             $authLabel =  is_string($parents) ? $parents : $authName;
+            $authRule = null;
+            $authData = null;
             if (isset($autogenItems[$authName])) {
                 $authLabel = $autogenItems[$authName]['label'];
+                $authRule = $autogenItems[$authName]['bizRule'];
+                $authData = $autogenItems[$authName]['data'];
             }
             
             if ($authItem === null) {
-                $am->createAuthItem($authName, CAuthItem::TYPE_OPERATION, $authLabel);
+                $am->createAuthItem($authName, CAuthItem::TYPE_OPERATION, $authLabel, $authRule, $authData);
                 if ($child !== null) {
                     $am->addItemChild($authName, $child);
                 }
@@ -188,18 +176,15 @@ abstract class AuthItemController extends AuthController
             $childOptions = array_merge(array('' => Yii::t('AuthModule.main', 'Select item') . ' ...'), $childOptions);
         }
 
-        $this->render(
-            'view',
-            array(
-                'item' => $item,
-                'ancestorDp' => $ancestorDp,
-                'descendantDp' => $descendantDp,
-                'formModel' => $formModel,
-                'childOptions' => $childOptions,
-                'descendantsTree'  => $this->getDescendantsTree($descendants),
-                'ancestorsTree'  => $this->getAncestorsTree($ancestors),
-            )
-        );
+        $this->render('view', array(
+            'item' => $item,
+            'ancestorDp' => $ancestorDp,
+            'descendantDp' => $descendantDp,
+            'formModel' => $formModel,
+            'childOptions' => $childOptions,
+            'descendantsTree'  => $this->getDescendantsTree($descendants),
+            'ancestorsTree'  => $this->getAncestorsTree($ancestors),
+        ));
     }
 
     /**
