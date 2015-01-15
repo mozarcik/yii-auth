@@ -162,7 +162,7 @@ class AuthModule extends CWebModule
         if (parent::beforeControllerAction($controller, $action)) {
             $user = Yii::app()->getUser();
 
-            if ($user instanceof AuthWebUser) {
+            if ($user instanceof AdminWebUserInterface) {
                 if ($user->isAdmin) {
                     return true;
                 } elseif ($user->isGuest) {

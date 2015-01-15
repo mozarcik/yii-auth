@@ -12,7 +12,7 @@
  *
  * @property boolean $isAdmin whether the user is an administrator.
  */
-class AuthWebUser extends CWebUser
+class AuthWebUser extends CWebUser implements AdminWebUserInterface
 {
     /**
      * @var string[] a list of names for the users that should be treated as administrators.
